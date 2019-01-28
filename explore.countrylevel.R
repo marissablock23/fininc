@@ -1,60 +1,8 @@
 library(tidyverse)
 library(here)
-library(haven)
-library(readxl)
+library(treemapify)
 
-############################# Import Data #############################
-## Global Findex
-findex <- read_xlsx("data/global_findex.xlsx", sheet = "Data",
-                    na = "")
-
-# Rename first columns
-findex <- rename(findex, year = "X__1", cntry.code = "X__2", country = "X__3",
-                 region = "X__4", inc.grp = "X__5")
-
-
-## IMF - Financial Access Survey
-imf <- read_dta("data/imf_fas.dta")
-head(imf$iso3)
-imf <- rename(imf, cntry.code = "iso3")
-
-
-## Region and income classification variables
-class <- read_xls("data/wb_class.xls", sheet = "List of economies")
-head(class)
-class <- class %>%
-  select(X__2, X__3, X__5, X__6)
-
-# Make first row column names
-class <- class[-c(1:3), ]
-class <- class[-2, ]
-colnames(class) = class[1,]
-class = class[-1,]
-head(class)
-
-class <- rename(class, inc.grp = "Income group", country = "Economy", cntry.code = "Code")
-
-# Drop last 56 rows
-tail(class, n = 60)
-class <- head(class, -56)
-tail(class)
-
-
-# Merge IMF + income group and region variables
-imf <- left_join(imf, class, by = "cntry.code")
-
-# Check for NAs
-imf %>%
-  filter(is.na(inc.grp)) %>%
-  group_by(economy) %>%
-  summarize(n = n_distinct(economy))
-
-# Change income group for Kosovo
-imf$inc.grp[imf$economy=="Kosovo, Republic of"] <- "Lower middle income"
-
-# Anguilla and Montserrat are still NA, so remove from data
-imf <- imf %>%
-  filter(!is.na(inc.grp))
+### 1. Run R script "prep" first to get clean data.
 
 #####################################################################################
 
@@ -82,7 +30,7 @@ imf %>%
   scale_fill_discrete(name = NULL, labels = c("Commercial Banks", 
                                                 "Credit Unions and \nFinancial Cooperatives",
                                                 "Microfinance Institutions"))
-ggsave(filename = "type_bar.pdf", width = 8, height = 5)
+ggsave(filename = "Graphs/type_bar.pdf", width = 8, height = 5)
 
 
 ## Growth in Mobile Money Transactions by Region
@@ -102,7 +50,7 @@ imf %>%
   scale_x_continuous(breaks = c(2012, 2013, 2014, 2015, 2016, 2017)) +
   scale_color_brewer(palette = "Dark2") +
   geom_point()
-ggsave(filename = "mm_line.pdf", width = 8, height = 5)
+ggsave(filename = "Graphs/mm_line.pdf", width = 8, height = 5)
 
 
 ## Mobile Money in Africa
@@ -129,6 +77,69 @@ of males have mobile money accounts",
     x = NULL
   ) +
   scale_y_continuous(breaks = c(0, 10, 20, 30, 40, 50, 60, 70, 80))
-ggsave(filename = "mm_dotplot.pdf", width = 10, height = 7)
+ggsave(filename = "Graphs/mm_dotplot.pdf", width = 10, height = 7)
+
+
+finac.k %>%
+  group_by(cluster_type, gender_of_respondent) %>%
+  summarize(bank = mean(e4_1, na.rm = TRUE)*100,
+            sacco = mean(e4_3, na.rm = TRUE)*100,
+            micro = mean(e4_4, na.rm = TRUE)*100,
+            savings = mean(e4_5, na.rm = TRUE)*100) %>%
+  gather("bank", "sacco", "micro", "savings", key = "product", value = "proportion") %>%
+  unite(area_sex, cluster_type, gender_of_respondent) %>%
+  mutate(area_sex = factor(area_sex, levels = c("1_1", "1_2", "2_1", "2_2"),
+                           labels = c("Rural male", "Rural female", "Urban male", "Urban female"))) %>%
+  ggplot(aes(x = product, y = area_sex, fill = proportion)) +
+  geom_tile(color = "white", size = 0.25) +
+  geom_text(aes(label = paste0(round(proportion,1), "%"))) +
+  labs(
+    title = "Most Kenyans utilize savings accounts, regardless of sex or location",
+    subtitle = "Proportion of individuals with particular financial products by sex and area",
+    caption = "Source Financial Access Survey, Kenya",
+    y = NULL,
+    x = NULL
+  )
+
+
+finac.k %>%
+  select(cluster_type, q5_2) %>%
+  group_by(cluster_type, q5_2) %>%
+  summarize(n = n()) %>%
+  group_by(cluster_type) %>%
+  mutate(countT = sum(n)) %>%
+  group_by(q5_2, add=TRUE) %>%
+  mutate(per=round(100*n/countT, 2)) %>%
+
+  ggplot(aes(x = as.factor(q5_2), y = as.numeric(per))) +
+  geom_line()
+
+finac.k %>%
+  group_by(a3) %>%
+  summarize(mean.inc = mean(total_income, na.rm = TRUE),
+            mean.sav = mean(r17_11, na.rm = TRUE),
+            mean.hh = mean(a_7_1, na.rm = TRUE),
+            mean.age = mean(age, na.rm = TRUE)) %>%
+  #filter(mean.inc<150000) %>%
+  ggplot(aes(x = mean.hh, y = mean.sav, size = mean.age, color = mean.inc)) +
+  geom_point() +
+  scale_size_continuous(trans="log", range = c(1, 10))
+  geom_smooth(model = lm)
+  scale_color_brewer(palette = "Set1")
   
- 
+
+ggplot(finac.k, aes(x = a_7_1, y = r17_11)) +
+  geom_point(na.rm = TRUE) +
+  facet_wrap(~gender_of_household_head) +
+  geom_jitter()
+
+
+
+finac.k %>%
+  group_by(l5_1) %>%
+  summarize(n = n()) %>%
+  filter(l5_1!="NA", l5_1<995) %>%
+  mutate(text = c("Commercial bank loan", "Microfinance loan", "SACCO loan"))
+ggplot(aes(area = n, fill = n)) +
+  geom_treemap() +
+  geom_treemap_text(aes(label = as.character(l5_1)))
