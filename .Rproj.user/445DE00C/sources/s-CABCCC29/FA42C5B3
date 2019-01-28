@@ -5,15 +5,15 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "3278963537",
+    "hash" : "0",
     "id" : "FA42C5B3",
-    "lastKnownWriteTime" : 1548648272,
-    "last_content_update" : 1548648272315,
-    "path" : "~/Documents/Data Viz/fininc/explore.countrylevel.R",
+    "lastKnownWriteTime" : 1548661641,
+    "last_content_update" : 1548661641213,
+    "path" : "~/Documents/Data-Viz/fininc/explore.countrylevel.R",
     "project_path" : "explore.countrylevel.R",
     "properties" : {
-        "cursorPosition" : "141,75",
-        "scrollLine" : "119"
+        "cursorPosition" : "115,22",
+        "scrollLine" : "105"
     },
     "relative_order" : 2,
     "source_on_save" : false,

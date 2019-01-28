@@ -1,6 +1,7 @@
 library(tidyverse)
 library(here)
 library(treemapify)
+library(RColorBrewer)
 
 ### 1. Run R script "prep" first to get clean data.
 
@@ -80,66 +81,74 @@ of males have mobile money accounts",
 ggsave(filename = "Graphs/mm_dotplot.pdf", width = 10, height = 7)
 
 
+
 finac.k %>%
   group_by(cluster_type, gender_of_respondent) %>%
   summarize(bank = mean(e4_1, na.rm = TRUE)*100,
             sacco = mean(e4_3, na.rm = TRUE)*100,
             micro = mean(e4_4, na.rm = TRUE)*100,
-            savings = mean(e4_5, na.rm = TRUE)*100) %>%
-  gather("bank", "sacco", "micro", "savings", key = "product", value = "proportion") %>%
+            savings = mean(e4_5, na.rm = TRUE)*100,
+            loans = mean(e4_7, na.rm = TRUE)*100,
+            insurance = mean(e4_9, na.rm = TRUE)*100) %>%
+  gather("bank", "sacco", "micro", "savings", "loans", "insurance", key = "product", value = "proportion") %>%
   unite(area_sex, cluster_type, gender_of_respondent) %>%
   mutate(area_sex = factor(area_sex, levels = c("1_1", "1_2", "2_1", "2_2"),
                            labels = c("Rural male", "Rural female", "Urban male", "Urban female"))) %>%
   ggplot(aes(x = product, y = area_sex, fill = proportion)) +
-  geom_tile(color = "white", size = 0.25) +
+  geom_tile(color = "black", size = 0.25) +
   geom_text(aes(label = paste0(round(proportion,1), "%"))) +
+  scale_fill_gradient2(name = "Proportion") +
   labs(
     title = "Most Kenyans utilize savings accounts, regardless of sex or location",
-    subtitle = "Proportion of individuals with particular financial products by sex and area",
-    caption = "Source Financial Access Survey, Kenya",
+    subtitle = "The proportion of individuals with particular financial products by sex and area",
+    caption = "Source: Financial Access Survey, Kenya",
     y = NULL,
     x = NULL
   )
 
 
-finac.k %>%
-  select(cluster_type, q5_2) %>%
-  group_by(cluster_type, q5_2) %>%
-  summarize(n = n()) %>%
-  group_by(cluster_type) %>%
-  mutate(countT = sum(n)) %>%
-  group_by(q5_2, add=TRUE) %>%
-  mutate(per=round(100*n/countT, 2)) %>%
 
-  ggplot(aes(x = as.factor(q5_2), y = as.numeric(per))) +
-  geom_line()
-
-finac.k %>%
-  group_by(a3) %>%
-  summarize(mean.inc = mean(total_income, na.rm = TRUE),
-            mean.sav = mean(r17_11, na.rm = TRUE),
-            mean.hh = mean(a_7_1, na.rm = TRUE),
-            mean.age = mean(age, na.rm = TRUE)) %>%
-  #filter(mean.inc<150000) %>%
-  ggplot(aes(x = mean.hh, y = mean.sav, size = mean.age, color = mean.inc)) +
-  geom_point() +
-  scale_size_continuous(trans="log", range = c(1, 10))
-  geom_smooth(model = lm)
-  scale_color_brewer(palette = "Set1")
-  
-
-ggplot(finac.k, aes(x = a_7_1, y = r17_11)) +
-  geom_point(na.rm = TRUE) +
-  facet_wrap(~gender_of_household_head) +
-  geom_jitter()
 
 
 
 finac.k %>%
-  group_by(l5_1) %>%
-  summarize(n = n()) %>%
   filter(l5_1!="NA", l5_1<995) %>%
-  mutate(text = c("Commercial bank loan", "Microfinance loan", "SACCO loan"))
-ggplot(aes(area = n, fill = n)) +
-  geom_treemap() +
-  geom_treemap_text(aes(label = as.character(l5_1)))
+  mutate(type = factor(l5_1, labels = c("Commercial bank loan", "Microfinance loan",
+                                        "SACCO loan", "Money lender", "Chama (Savings group)", 
+                                        "Loan from family/friends", "Gift from family/friends", "Income from another business", "Sale of assets", 
+                                        "Own savings", "Inherited", "Government fund", "Other", "Don't know", "Mobile" ))) %>%
+  group_by(type, gender_of_respondent) %>%
+  summarize(n = n()) %>%
+ggplot(aes(area = n, fill = as.factor(gender_of_respondent), label = as.character(type), subgroup = as.factor(gender_of_respondent))) +
+  geom_treemap(fill = "black") +
+  geom_treemap(aes(alpha = n)) +
+  geom_treemap_subgroup_border(color = "white") +
+  geom_treemap_text(aes(label = type),
+                        place = "center",
+                        grow = F,
+                        color = "white",
+                        min.size = 1,
+                        reflow = TRUE,
+                        ) +
+  scale_fill_discrete() +
+  theme(legend.position = "none") +
+  labs(title = "A majority of business owners user their own savings as start-up capital \n rather than loans",
+       subtitle = "Female,                                                                                                                              Male",
+       caption = "Source: Financial Access Survey, 2015-2016, Kenya"
+  )
+
+
+
+finac.k %>%
+  filter(!is.na(l11_1)) %>%
+  group_by(l11_1) %>%
+  mutate(bank = "Account at a bank") %>%
+  ggplot(aes(x = as.factor(bank), fill = as.factor(l11_1))) +
+  geom_bar(position = "dodge", alpha = 0.8) +
+  scale_fill_brewer(palette = "Oranges", name = NULL, labels = c("Currently use", "Used to use", "Never used")) +
+  labs(
+    title = "An overwhelming majority of Kenyan business-owners have never used a bank account",
+    subtitle = "At least for business purposes",
+    caption = "Source: Financial Acces Survey, 2015-2016, Kenya",
+    x = NULL
+  )

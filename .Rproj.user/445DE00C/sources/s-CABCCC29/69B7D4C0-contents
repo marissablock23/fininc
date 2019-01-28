@@ -106,3 +106,8 @@ imf$inc.grp[imf$economy=="Kosovo, Republic of"] <- "Lower middle income"
 imf <- imf %>%
   filter(!is.na(inc.grp))
 
+imf$Region <- as.factor(imf$Region)
+class(imf$Region)
+imf$Region <- relevel(imf$Region, "Sub-Saharan Africa")
+
+

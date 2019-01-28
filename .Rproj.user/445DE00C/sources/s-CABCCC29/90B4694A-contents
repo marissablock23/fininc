@@ -1,0 +1,45 @@
+finac.k %>%
+  select(cluster_type, q5_2) %>%
+  group_by(cluster_type, q5_2) %>%
+  summarize(n = n()) %>%
+  group_by(cluster_type) %>%
+  mutate(countT = sum(n)) %>%
+  group_by(q5_2, add=TRUE) %>%
+  mutate(per=round(100*n/countT, 2)) %>%
+  
+  ggplot(aes(x = as.factor(q5_2), y = as.numeric(per))) +
+  geom_line()
+
+finac.k %>%
+  group_by(a3) %>%
+  summarize(mean.inc = mean(total_income, na.rm = TRUE),
+            mean.sav = mean(r17_11, na.rm = TRUE),
+            mean.hh = mean(a_7_1, na.rm = TRUE),
+            mean.age = mean(age, na.rm = TRUE)) %>%
+  #filter(mean.inc<150000) %>%
+  ggplot(aes(x = mean.hh, y = mean.sav, size = mean.age, color = mean.inc)) +
+  geom_point() +
+  scale_size_continuous(trans="log", range = c(1, 10))
+geom_smooth(model = lm)
+scale_color_brewer(palette = "Set1")
+
+
+ggplot(finac.k, aes(x = a_7_1, y = r17_11)) +
+  geom_point(na.rm = TRUE) +
+  facet_wrap(~gender_of_household_head) +
+  geom_jitter()
+
+
+
+
+finac.k %>%
+  filter(!is.na(l11_1)) %>%
+  group_by(l11_1) %>%
+  #summarize(n = n()) %>%
+  mutate(bank = "Account at a bank") %>%
+  #spread(key = l11_1, value = n) %>%
+  #mutate(bank = "bank")
+  ggplot(aes(x = as.factor(bank), fill = as.factor(l11_1))) +
+  geom_bar(position = "dodge")
+
+sum(is.na(finac.k$l11_1))
