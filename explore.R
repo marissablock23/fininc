@@ -90,7 +90,7 @@ ggsave(filename = "Graphs/mm_dotplot.pdf", width = 10, height = 7)
 
 
 
-finac.k %>%
+finac.k.16 %>%
   group_by(cluster_type, gender_of_respondent) %>%
   summarize(bank = mean(e4_1, na.rm = TRUE)*100,
             sacco = mean(e4_3, na.rm = TRUE)*100,
@@ -119,7 +119,7 @@ finac.k %>%
 
 
 
-finac.k %>%
+finac.k.16 %>%
   filter(l5_1!="NA", l5_1<995) %>%
   mutate(type = factor(l5_1, labels = c("Commercial bank loan", "Microfinance loan",
                                         "SACCO loan", "Money lender", "Chama (Savings group)", 
@@ -147,7 +147,7 @@ ggplot(aes(area = n, fill = as.factor(gender_of_respondent), label = as.characte
 
 
 
-finac.k %>%
+finac.k.16 %>%
   filter(!is.na(l11_1)) %>%
   group_by(l11_1) %>%
   mutate(bank = "Account at a bank") %>%
