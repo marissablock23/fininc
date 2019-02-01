@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1548553566917.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "69B7D4C0",
+    "lastKnownWriteTime" : 1549050029,
+    "last_content_update" : 1549050029373,
+    "path" : "~/Documents/Data-Viz/fininc/prep.R",
+    "project_path" : "prep.R",
+    "properties" : {
+        "cursorPosition" : "124,0",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

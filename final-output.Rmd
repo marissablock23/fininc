@@ -4,7 +4,7 @@ author: "Marissa Block"
 date: "1/27/2019"
 output:
   html_document:    
-    code_folding: show
+    code_folding: hide
 ---
 
 
@@ -18,70 +18,10 @@ library(readxl)
 library(sf)
 library(tmap)
 
-
-findex <- read_xlsx("data/global_findex.xlsx", sheet = "Data",
-                    na = "")
-
-  # Rename first columns
-  findex <- rename(findex, year = "X__1", cntry.code = "X__2", country = "X__3",
-                 region = "X__4", inc.grp = "X__5")
-
-
-imf <- read_dta("data/imf_fas.dta")
-head(imf$iso3)
-imf <- rename(imf, cntry.code = "iso3")
-
-class <- read_xls("data/wb_class.xls", sheet = "List of economies")
-head(class)
-class <- class %>%
-  select(X__2, X__3, X__5, X__6)
-
-  # Make first row column names
-  class <- class[-c(1:3), ]
-  class <- class[-2, ]
-  colnames(class) = class[1,]
-  class = class[-1,]
-  head(class)
-
-  class <- rename(class, inc.grp = "Income group", country = "Economy", cntry.code = "Code")
-
-  # Drop last 56 rows
-  tail(class, n = 60)
-  class <- head(class, -56)
-  tail(class)
-  
-# Merge IMF + income group and region variables
-imf <- left_join(imf, class, by = "cntry.code")
-
-# Check for NAs
-imf %>%
-  filter(is.na(inc.grp)) %>%
-  group_by(economy) %>%
-  summarize(n = n_distinct(economy))
-
-# Change income group for Kosovo
-imf$inc.grp[imf$economy=="Kosovo, Republic of"] <- "Lower middle income"
-
-# Anguilla and Montserrat are still NA, so remove from data
-imf <- imf %>%
-  filter(!is.na(inc.grp))
-
-imf$Region <- as.factor(imf$Region)
-class(imf$Region)
-imf$Region <- relevel(imf$Region, "Sub-Saharan Africa")
-
-
-finac.k <- read_dta("data/fin_access16_kenya.dta")
-  
-  # Create dummy variables
-  finac.k$e4_1[finac.k$e4_1==2] <- 0
-  finac.k$e4_3[finac.k$e4_3==2] <- 0
-  finac.k$e4_4[finac.k$e4_4==2] <- 0
-  finac.k$e4_5[finac.k$e4_5==2] <- 0
-  finac.k$e4_7[finac.k$e4_7==2] <- 0
-  finac.k$e4_9[finac.k$e4_9==2] <- 0
-  
-  finac.k$e4_1 <- as.numeric(finac.k$e4_1)
+# Load data
+findex <- read_csv("data/clean/clean.findex.csv")
+imf <- read_csv("data/clean/clean.imf.csv")
+finac.k.16 <- read_csv("data/clean/clean.finac.k.16.csv")
 
 ```
 
@@ -140,6 +80,8 @@ findex %>%
 ggsave(filename = "Graphs/mm_dotplot.pdf", width = 10, height = 7)
 
 ```
+Kenya leads the way in mobile money, while in some countries, like Ethiopia, mobile money has not taken off. 
+
 
 ## Financial Access Survey
 
@@ -147,7 +89,7 @@ The following charts utilize the 2015-16 Financial Access Survey from Kenya.
 
 Access to finance for entreprenurs is a key ingredient to economic growth. When small-to-medium enterprises, which are characteristic of Kenya, can access financial services, these business can save, invest, and ultimately grow. Yet, surprisingly, few business owners use these services.
 ```{r, warning = FALSE}
-finac.k %>%
+finac.k.16 %>%
   filter(!is.na(l11_1)) %>%
   group_by(l11_1) %>%
   mutate(bank = "Account at a bank") %>%
@@ -165,7 +107,7 @@ ggsave(filename = "Graphs/bar2.pdf", width = 8, height = 5)
 
 Rather than taking out loans, Kenyan business owners tend to utilize their own personal savings to start their business. This could be a result of a number of issues, including a high interest rates or the inability of the financial sector to appropriately access risk.
 ```{r, warning = FALSE}
-finac.k %>%
+finac.k.16 %>%
   filter(l5_1!="NA", l5_1<995) %>%
   mutate(type = factor(l5_1, labels = c("Commercial bank loan", "Microfinance loan",
                                         "SACCO loan", "Money lender", "Chama (Savings group)", 
@@ -196,7 +138,7 @@ ggsave(filename = "Graphs/treemap.pdf", width = 8, height = 5)
 Looking beyond business owners, Kenyans utilize all sorts of financial services. Although many business-owners do not use bank accounts for business purposes, most individuals living in urban areas do use bank accounts. However, the difference in access between urban males and females is significantly different, as is the difference between rural males and females.
 ```{r, warning = FALSE}
 
-finac.k %>%
+finac.k.16 %>%
   group_by(cluster_type, gender_of_respondent) %>%
   summarize(bank = mean(e4_1, na.rm = TRUE)*100,
             sacco = mean(e4_3, na.rm = TRUE)*100,
