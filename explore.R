@@ -8,9 +8,9 @@ library(extrafont)
 
 ### Note: Final graphs are at the top of the script. 
 
-findex <- read_csv("data/clean/clean.findex.csv")
-imf <- read_csv("data/clean/clean.imf.csv")
-finac.k.16 <- read_csv("data/clean/clean.finac.k.16.csv")
+findex <- read_csv("../fininc-data/clean/clean.findex.csv")
+imf <- read_csv("../fininc-data/clean/clean.imf.csv")
+finac.k.16 <- read_csv("../fininc-data/clean/clean.finac.k.16.csv")
 
 #####################################################################
 # FINAL GRAPHS

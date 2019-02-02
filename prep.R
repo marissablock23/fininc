@@ -19,7 +19,7 @@ library(readr)
 
 ############################# Import + Clean Data #############################
 ## 1. Global Findex
-findex <- read_xlsx("data/global_findex.xlsx", sheet = "Data",
+findex <- read_xlsx("../fininc-data/global_findex.xlsx", sheet = "Data",
                     na = "")
 
 # Rename first columns
@@ -34,13 +34,13 @@ findex$region[findex$region=="i"] <- "South Asia"
 
 
 ## 2. IMF - Financial Access Survey
-imf <- read_dta("data/imf_fas.dta")
+imf <- read_dta("../fininc-data/imf_fas.dta")
 head(imf$iso3)
 imf <- rename(imf, cntry.code = "iso3")
 
 
 ## 3. Region and income classification variables
-class <- read_xls("data/wb_class.xls", sheet = "List of economies")
+class <- read_xls("../fininc-data/wb_class.xls", sheet = "List of economies")
 head(class)
 class <- class %>%
   select(X__2, X__3, X__5, X__6)
@@ -81,7 +81,7 @@ imf$Region <- relevel(imf$Region, "Sub-Saharan Africa")
 
 
 ## 4. Financial Access Survey '16, Kenya
-finac.k.16 <- read_dta("data/fin_access16_kenya.dta")
+finac.k.16 <- read_dta("../fininc-data/fin_access16_kenya.dta")
 
 # Clean variable names
 #finac.k <- rename(finac.k, sex.res = "gender_of_respondent", rural = "cluster_type")
@@ -107,7 +107,7 @@ finac.k.16$e4_1 <- as.numeric(finac.k.16$e4_1)
 
 
 ## 5. Geospatial data
-kenya <- read_sf(dsn="data/kenya_shapefiles", layer = "ken_admbndl_admALL_iebc_itos_20180607")
+kenya <- read_sf(dsn="../fininc-data/kenya_shapefiles", layer = "ken_admbndl_admALL_iebc_itos_20180607")
 
 # Initial plot and check
 plot(kenya)
@@ -119,6 +119,6 @@ kenya <- select(kenya, -(validON:validTo))
 
 
 ############################# Export Data #############################
-write_csv(findex, path = "data/clean/clean.findex.csv")
-write_csv(imf, path = "data/clean/clean.imf.csv")
-write_csv(finac.k.16, path = "data/clean/clean.finac.k.16.csv")
+write_csv(findex, path = "../fininc-data/clean/clean.findex.csv")
+write_csv(imf, path = "../fininc-data/clean/clean.imf.csv")
+write_csv(finac.k.16, path = "../fininc-data/clean/clean.finac.k.16.csv")
