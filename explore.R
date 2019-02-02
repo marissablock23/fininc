@@ -38,7 +38,7 @@ imf %>%
   scale_fill_discrete(name = NULL, labels = c("Commercial Banks", 
                                                 "Credit Unions and \nFinancial Cooperatives",
                                                 "Microfinance Institutions")) +
-  theme(plot.title = element_text(family = "Arial Bold"))
+  theme(plot.title = element_text(family = "Avenir Next", face = "bold"))
 ggsave(filename = "Graphs/type_bar.pdf", width = 8, height = 5)
 
 
@@ -58,7 +58,10 @@ imf %>%
   ) +
   scale_x_continuous(breaks = c(2012, 2013, 2014, 2015, 2016, 2017)) +
   scale_color_brewer(palette = "Dark2") +
-  geom_point()
+  geom_point() +
+  theme(text = element_text(family = "Avenir Next"),
+        plot.title = element_text(face = "bold"),
+        plot.subtitle = element_text(face = "italic"))
 ggsave(filename = "Graphs/mm_line.pdf", width = 8, height = 5)
 
 
@@ -85,11 +88,16 @@ of males have mobile money accounts",
     y = "% of respondents with mobile money accounts (+15)",
     x = NULL
   ) +
-  scale_y_continuous(breaks = c(0, 10, 20, 30, 40, 50, 60, 70, 80))
+  scale_y_continuous(breaks = c(0, 10, 20, 30, 40, 50, 60, 70, 80)) +
+  theme(text = element_text(family = "Avenir Next"),
+        plot.title = element_text(face = "bold"),
+        plot.subtitle = element_text(face = "italic"),
+        panel.grid.minor.y =element_blank(),
+        panel.grid.major.y = element_blank())
 ggsave(filename = "Graphs/mm_dotplot.pdf", width = 10, height = 7)
 
 
-
+## Heat Map of Demographics by Financial Product
 finac.k.16 %>%
   group_by(cluster_type, gender_of_respondent) %>%
   summarize(bank = mean(e4_1, na.rm = TRUE)*100,
@@ -104,7 +112,7 @@ finac.k.16 %>%
                            labels = c("Rural male", "Rural female", "Urban male", "Urban female"))) %>%
   ggplot(aes(x = product, y = area_sex, fill = proportion)) +
   geom_tile(color = "black", size = 0.25) +
-  geom_text(aes(label = paste0(round(proportion,1), "%"))) +
+  geom_text(aes(label = paste0(round(proportion,1), "%"), family = "Avenir Next")) +
   scale_fill_gradient2(name = "Proportion") +
   labs(
     title = "Most Kenyans utilize savings accounts, regardless of sex or location",
@@ -112,41 +120,57 @@ finac.k.16 %>%
     caption = "Source: Financial Access Survey, Kenya",
     y = NULL,
     x = NULL
-  )
+  ) +
+  theme(text = element_text(family = "Avenir Next"),
+        plot.title = element_text(face = "bold"),
+        plot.subtitle = element_text(face = "italic"))
 
 
-
-
-
-
+## Tree map
 finac.k.16 %>%
   filter(l5_1!="NA", l5_1<995) %>%
   mutate(type = factor(l5_1, labels = c("Commercial bank loan", "Microfinance loan",
                                         "SACCO loan", "Money lender", "Chama (Savings group)", 
                                         "Loan from family/friends", "Gift from family/friends", "Income from another business", "Sale of assets", 
                                         "Own savings", "Inherited", "Government fund", "Other", "Don't know", "Mobile" ))) %>%
+  select(type, gender_of_respondent) %>%
+  mutate(totalf = sum(gender_of_respondent[gender_of_respondent==1])) %>%
+  mutate(totalm = sum(gender_of_respondent[gender_of_respondent==2]))
+
+
   group_by(type, gender_of_respondent) %>%
   summarize(n = n()) %>%
-ggplot(aes(area = n, fill = as.factor(gender_of_respondent), label = as.character(type), subgroup = as.factor(gender_of_respondent))) +
+  aggregate(n, gender_of_respondent, sum)
+  
+  ungroup(type) %>%
+  summarize(female = sum(n[gender_of_respondent==1]),
+            male = sum(n[gender_of_respondent==2]))
+%>%
+  
+
+  ggplot(aes(area = n, fill = as.factor(gender_of_respondent), label = as.character(type), subgroup = as.factor(gender_of_respondent))) +
   geom_treemap(fill = "black") +
   geom_treemap(aes(alpha = n)) +
   geom_treemap_subgroup_border(color = "white") +
   geom_treemap_text(aes(label = type),
-                        place = "center",
-                        grow = F,
-                        color = "white",
-                        min.size = 1,
-                        reflow = TRUE,
-                        ) +
+                    place = "center",
+                    grow = F,
+                    color = "white",
+                    min.size = 1,
+                    reflow = TRUE,
+  ) +
   scale_fill_discrete() +
   theme(legend.position = "none") +
   labs(title = "A majority of business owners user their own savings as start-up capital \n rather than loans",
-       subtitle = "Female,                                                                                                                              Male",
+       subtitle = "Female                                                                                                                              Male",
        caption = "Source: Financial Access Survey, 2015-2016, Kenya"
-  )
+  ) +
+  theme(text = element_text(family = "Avenir Next"),
+        plot.title = element_text(face = "bold"),
+        plot.subtitle = element_text(face = "italic"))
 
 
-
+## Bar graph
 finac.k.16 %>%
   filter(!is.na(l11_1)) %>%
   group_by(l11_1) %>%
@@ -159,8 +183,11 @@ finac.k.16 %>%
     subtitle = "At least for business purposes",
     caption = "Source: Financial Acces Survey, 2015-2016, Kenya",
     x = NULL
-  )
-
+  ) +
+  theme(text = element_text(family = "Avenir Next"),
+        plot.title = element_text(face = "bold"),
+        plot.subtitle = element_text(face = "italic"))
+ggsave(filename = "Graphs/bar2.pdf", width = 8, height = 5)
 ##################################################################### 
 # UNFINISHED
 

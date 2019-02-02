@@ -44,8 +44,10 @@ imf %>%
   ) +
   scale_x_continuous(breaks = c(2012, 2013, 2014, 2015, 2016, 2017)) +
   scale_color_brewer(palette = "Dark2") +
-  geom_point()
-ggsave(filename = "Graphs/mm_line.pdf", width = 8, height = 5)
+  geom_point() +
+  theme(text = element_text(family = "Avenir Next"),
+        plot.title = element_text(face = "bold"),
+        plot.subtitle = element_text(face = "italic"))
 
 ```
 
@@ -87,7 +89,7 @@ Kenya leads the way in mobile money, while in some countries, like Ethiopia, mob
 
 The following charts utilize the 2015-16 Financial Access Survey from Kenya.
 
-Access to finance for entreprenurs is a key ingredient to economic growth. When small-to-medium enterprises, which are characteristic of Kenya, can access financial services, these business can save, invest, and ultimately grow. Yet, surprisingly, few business owners use these services.
+Access to finance for entrepreneurs is a key ingredient to economic growth. When small-to-medium enterprises, which are characteristic of Kenya, can access financial services, these business can save, invest, and ultimately grow. Yet, surprisingly, few business owners use these services.
 ```{r, warning = FALSE}
 finac.k.16 %>%
   filter(!is.na(l11_1)) %>%
