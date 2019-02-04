@@ -112,7 +112,7 @@ Below, we see Madagascar has a very high interest rate and a small number of dep
     annotate("rect", xmin = 0, xmax = 20000, ymin = 38, ymax = 55, alpha = 0.15) +
     annotate("text", x = 17000, y = 50, label = "High cost of finance", family = "Avenir Next") +
     annotate("rect", xmin = 1000, xmax = 16000, ymin = -18, ymax = -2, alpha = 0.15) +
-    annotate("text", x = 15000, y = -15, label = "Low cost of finance", family = "Avenir Next") +
+    annotate("text", x = 18000, y = -15, label = "Low cost of finance", family = "Avenir Next") +
     scale_size_continuous(name = "# of Depositors per 1,000 adults")
   
 ```
