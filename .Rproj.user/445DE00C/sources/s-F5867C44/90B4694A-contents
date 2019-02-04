@@ -18,6 +18,11 @@ wdi <- read_csv("../fininc-data/clean/clean.wdi.csv")
 
 #####################################################################
 # FINAL GRAPHS
+
+## Set theme
+theme_set()
+
+
 ## Average # of Financial Institutions, 2017
 imf %>%
   filter(year==2017) %>%
@@ -42,7 +47,8 @@ imf %>%
   scale_fill_discrete(name = NULL, labels = c("Commercial Banks", 
                                                 "Credit Unions and \nFinancial Cooperatives",
                                                 "Microfinance Institutions")) +
-  theme(plot.title = element_text(family = "Avenir Next", face = "bold"))
+  theme(plot.title = element_text(family = "Avenir Next", face = "bold"),
+        panel.background = element_rect(fill = "white", color = "black"))
 ggsave(filename = "Graphs/type_bar.pdf", width = 8, height = 5)
 
 
@@ -51,7 +57,9 @@ imf %>%
   filter(!is.na(i_mob_transactions_value_GDP), year>2011) %>%
   group_by(Region, year) %>%
   summarize(mean = mean(i_mob_transactions_value_GDP, na.rm = TRUE)) %>%
-  ggplot(aes(x = year, y = mean, color = Region)) +
+  mutate(Region2 = factor(Region, levels = c("Sub-Saharan Africa", "East Asia & Pacific", "South Asia", "Europe & Central Asia", "Latin America & Caribbean",
+                                            "Middle East & North Africa"))) %>%
+  ggplot(aes(x = year, y = mean, color = Region2)) +
   geom_line(size = 0.5) +
   labs(
     title = "Mobile money useage has grown significantly in Sub-Saharan Africa",
@@ -61,11 +69,19 @@ imf %>%
     y = "Percent of GDP"
   ) +
   scale_x_continuous(breaks = c(2012, 2013, 2014, 2015, 2016, 2017)) +
-  scale_color_brewer(palette = "Dark2") +
+  scale_color_brewer(name = "Region", palette = "Dark2") +
   geom_point() +
   theme(text = element_text(family = "Avenir Next"),
         plot.title = element_text(face = "bold"),
-        plot.subtitle = element_text(face = "italic"))
+        plot.subtitle = element_text(face = "italic"),
+        #panel.background = element_rect(fill = "white", color = "black"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        legend.position = c(0.05, 0.97),
+        legend.justification = c("left", "top"),
+        legend.box.just = "left",
+        legend.margin = margin(6, 6, 6, 6),
+        legend.box.background = element_rect())
 ggsave(filename = "Graphs/mm_line.pdf", width = 8, height = 5)
 
 
@@ -80,16 +96,20 @@ findex %>%
   ggplot() +
   geom_segment(aes(x=country, xend = country, y = mobileaccount.t.d.2,
                    yend = mobileaccount.t.d.1), color = "black") +
-  geom_point(aes(x = country, y = mobileaccount.t.d.2), color = "pink") +
-  geom_point(aes(x = country, y = mobileaccount.t.d.1), color = "blue") +
+  geom_point(aes(x = country, y = mobileaccount.t.d.2), color = "#7570b3", size = 2) +
+  geom_point(aes(x = country, y = mobileaccount.t.d.1), color = "#1b9e77", size = 2) +
+  geom_text(aes(x = "Kenya", y = 65, label = "Female"), nudge_x = -0.7, nudge_y = 0.9,
+            color = "black", size = 3, family = "Avenir Next", angle = 20) +
+  geom_text(aes(x = "Kenya", y = 78, label = "Male"), nudge_x = -0.7,
+            color = "black", size = 3, family = "Avenir Next", angle = 20) +
   coord_flip() +
   labs(
-    title = "Gender Differences in Mobile Money Access",
-    subtitle = "While Africa leads the way in mobile money access, in almost all countries, a higher proportion 
+    title = "While Africa leads the way in mobile money access, in almost all countries, a higher proportion 
 of males have mobile money accounts",
+    subtitle = "Gender Difference in Mobile Money Access",
     caption = "Note: Excludes South Sudan and Central Africa Republic, for which there is no data.
     Source: Global Findex, 2017",
-    y = "% of respondents with mobile money accounts (+15)",
+    y = "% of respondents with mobile money accounts (Age +15)",
     x = NULL
   ) +
   scale_y_continuous(breaks = c(0, 10, 20, 30, 40, 50, 60, 70, 80)) +
@@ -104,30 +124,33 @@ ggsave(filename = "Graphs/mm_dotplot.pdf", width = 10, height = 7)
 ## Heat Map of Demographics by Financial Product
 finac.k.15 %>%
   group_by(cluster_type, gender_of_respondent) %>%
-  summarize(bank = mean(e4_1, na.rm = TRUE)*100,
-            sacco = mean(e4_3, na.rm = TRUE)*100,
-            micro = mean(e4_4, na.rm = TRUE)*100,
-            savings = mean(e4_5, na.rm = TRUE)*100,
-            loans = mean(e4_7, na.rm = TRUE)*100,
-            insurance = mean(e4_9, na.rm = TRUE)*100) %>%
-  gather("bank", "sacco", "micro", "savings", "loans", "insurance", key = "product", value = "proportion") %>%
+  summarize(Bank = mean(e4_1, na.rm = TRUE)*100,
+            SACCO = mean(e4_3, na.rm = TRUE)*100,
+            Microfinance = mean(e4_4, na.rm = TRUE)*100,
+            Savings = mean(e4_5, na.rm = TRUE)*100,
+            Loans = mean(e4_7, na.rm = TRUE)*100,
+            Insurance = mean(e4_9, na.rm = TRUE)*100) %>%
+  gather("Bank", "SACCO", "Microfinance", "Savings", "Loans", "Insurance", key = "product", value = "proportion") %>%
   unite(area_sex, cluster_type, gender_of_respondent) %>%
   mutate(area_sex = factor(area_sex, levels = c("1_1", "1_2", "2_1", "2_2"),
                            labels = c("Rural male", "Rural female", "Urban male", "Urban female"))) %>%
+  mutate(product = factor(product, levels = c("Savings", "Bank", "Loans", "Insurance", "SACCO", "Microfinance"))) %>%
   ggplot(aes(x = product, y = area_sex, fill = proportion)) +
   geom_tile(color = "black", size = 0.25) +
-  geom_text(aes(label = paste0(round(proportion,1), "%"), family = "Avenir Next")) +
-  scale_fill_gradient2(name = "Proportion") +
+  geom_text(aes(label = paste0(round(proportion,1), "%"), family = "Avenir Next", fontface = "bold")) +
+  scale_fill_gradient2(name = "Proportion", low = "#e8f5f1", mid = "#76c4ad", high = "#1b9e77", guide = "colorbar", midpoint = 40) +
+  #scale_fill_brewer(palette = "Dark2") +
   labs(
-    title = "Most Kenyans utilize savings accounts, regardless of sex or location",
+    title = "Most Kenyans utilize savings accounts, \n regardless of sex or location",
     subtitle = "The proportion of individuals with particular financial products by sex and area",
-    caption = "Source: Financial Access Survey, Kenya",
+    caption = "Source: Financial Access Survey 2015-16, Kenya",
     y = NULL,
     x = NULL
   ) +
   theme(text = element_text(family = "Avenir Next"),
         plot.title = element_text(face = "bold"),
-        plot.subtitle = element_text(face = "italic"))
+        plot.subtitle = element_text(face = "italic"),
+        panel.background = element_rect(fill = "white"))
 
 
 ## Tree map (Sex: 1 = Male, 2 = Female)
@@ -159,22 +182,25 @@ finac.k.15 %>%
   group_by(type, Sex) %>%
   summarize(n = n()) %>%
   left_join(label) %>%
-  ggplot(aes(area = n, fill = as.factor(Sex), label = label, subgroup = as.factor(Sex))) +
-  geom_treemap(fill = "black") +
+  mutate(Sex2 = factor(Sex, levels = c("1", "2"),
+                       labels = c("Male", "Female"))) %>%
+  ggplot(aes(area = n, fill = Sex2, label = label, subgroup = Sex2)) +
+  geom_treemap(fill = "white") +
   geom_treemap(aes(alpha = n)) +
   geom_treemap_subgroup_border(color = "white") +
+  geom_treemap_subgroup_text(color = "black", place = "bottomleft", family = "Avenir Next", fontface = "italic") +
   geom_treemap_text(aes(label = label),
                     place = "center",
                     grow = F,
-                    color = "white",
+                    color = "black",
                     min.size = 1,
                     reflow = TRUE,
                     family = "Avenir Next"
   ) +
-  scale_fill_discrete() +
+  scale_fill_brewer(palette = "Dark2") +
   theme(legend.position = "none") +
-  labs(title = "A majority of business owners user their own savings as start-up capital \n rather than loans",
-       subtitle = "   Female                                                                                                                              Male",
+  labs(title = "Many business owners user their own savings as start-up capital \n rather than loans",
+       subtitle = "Females also receive more gifts from family or friends.",
        caption = "Source: Financial Access Survey, 2015-2016, Kenya"
   ) +
   theme(text = element_text(family = "Avenir Next"),
@@ -189,33 +215,42 @@ finac.k.15 %>%
   mutate(bank = "Account at a bank") %>%
   ggplot(aes(x = as.factor(bank), fill = as.factor(l11_1))) +
   geom_bar(position = "dodge", alpha = 0.8) +
-  scale_fill_brewer(palette = "Oranges", name = NULL, labels = c("Currently use", "Used to use", "Never used")) +
+  scale_fill_brewer(palette = "Dark2", name = NULL, labels = c("Currently use", "Used to use", "Never used")) +
   labs(
-    title = "An overwhelming majority of Kenyan business-owners have never used a bank account",
+    title = "An overwhelming majority of Kenyan business-owners \nhave never used a bank account",
     subtitle = "At least for business purposes",
     caption = "Source: Financial Access Survey, 2015-2016, Kenya",
-    x = NULL
+    x = NULL,
+    y = NULL
   ) +
   theme(text = element_text(family = "Avenir Next"),
         plot.title = element_text(face = "bold"),
-        plot.subtitle = element_text(face = "italic"))
+        plot.subtitle = element_text(face = "italic"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        legend.position = c(0.05, 0.97),
+        legend.justification = c("left", "top"),
+        legend.box.just = "left",
+        legend.margin = margin(6, 6, 6, 6),
+        legend.box.background = element_rect())
 ggsave(filename = "Graphs/bar2.pdf", width = 8, height = 5)
 
 
 ## Slope graph
 finac.k.06 <- mutate(finac.k.06, year = 2006)
-finac.k.06 <- rename(finac.k.06, bank_usage = "A4", savings_usage = "X_savings", credit_usage = "X_credit", mfi_usage = "X_cur_mfi")
+finac.k.06 <- rename(finac.k.06, bank_usage = "A4", savings_usage = "X_savings", credit_usage = "X_credit", mfi_usage = "X_cur_mfi", insurance_usage = "X_useins")
 finac.k.15 <- mutate(finac.k.15, year = 2015)
 
 
 y2006 <- finac.k.06 %>%
-  select(year, bank_usage, savings_usage, credit_usage, mfi_usage)
+  select(year, bank_usage, savings_usage, credit_usage, mfi_usage, insurance_usage)
 y2015 <- finac.k.15 %>%
-  select(year, bank_usage, savings_usage, credit_usage, mfi_usage)
+  select(year, bank_usage, savings_usage, credit_usage, mfi_usage, insurance_usage)
 
 combine <-bind_rows(y2006, y2015)
 combine <- combine %>%
-  gather(bank_usage, savings_usage, credit_usage, mfi_usage, key = "type", value = "value") %>%
+  rename(Banks = "bank_usage", Savings = "savings_usage", Credit = "credit_usage", Microfinance = "mfi_usage", Insurance = "insurance_usage") %>%
+  gather(Banks, Savings, Credit, Microfinance, Insurance, key = "type", value = "value") %>%
   group_by(year, type) %>%
   summarize(total1 = sum(value[value==1]), total2 = n(), pct = (total1/total2)*100)
 
@@ -223,20 +258,21 @@ combine <- combine %>%
     geom_line(aes(color = type, alpha = 1), size = 2) +
     geom_point(aes(color = type, alpha = 1), size = 4) +
     scale_x_continuous(name = "Year", position = "top", breaks = c(2006, 2015)) +
+    scale_color_brewer(palette = "Dark2") +
     geom_text_repel(data = combine %>% filter(year==2006), aes(label = paste0(type, ":", round(pct, 2), "%")),
               hjust = -0.1,
               vjust = -1,
               family = "Avenir Next",
-              size = 3) +
+              size = 5) +
     geom_text_repel(data = combine %>% filter(year==2015), aes(label = paste0(type, ":", round(pct, 2), "%")),
               hjust = 1,
               vjust = -1,
               family = "Avenir Next",
-              size = 3) +
+              size = 5) +
     labs(
-      title = "Change in financial product useage",
-      subtitle = "What has changed",
-      caption = "Source: Financial Access Survey, Kenya, 2013 and 2016"
+      title = "Commercial banks and savings products have seen the \n largest increase in usage from 2006 to 2015",
+      subtitle = "Credit and microfinance have hardly changed, while insurance has decreased slightly",
+      caption = "Note: Individuals may have more than one financial product, \n so these numbers do not sum to 100. \n Source: Financial Access Survey, Kenya, 2006 and 2015"
     ) +
     theme(text = element_text(family = "Avenir Next"),
         plot.title = element_text(face = "bold"),
@@ -253,40 +289,43 @@ combine <- combine %>%
   
   
 ## Bubble Chart
-  i_depositors_A1_pop i_deposit_acc_A1_pop
-  # Exclude South Sudan (SSD) - extreme outlier
-  
   # Create dataframe of labels - MDG, TLS, BRA, QAT, SGP, KWT, BRN, ARG, SUR
   labels.bubble <-   wdi %>%
     filter(year==2016, cntry.code!="SSD") %>%
     select(cntry.code, year, ny.gdp.pcap.kd, fr.inr.rinr) %>%
     left_join(imf) %>%
-    select(cntry.code, year, ny.gdp.pcap.kd, fr.inr.rinr, i_depositors_A1_pop, i_deposit_acc_A1_pop, Region) %>%
+    select(cntry.code, economy, year, ny.gdp.pcap.kd, fr.inr.rinr, i_depositors_A1_pop, i_deposit_acc_A1_pop, Region) %>%
     filter(!is.na(fr.inr.rinr)) %>%
-    filter(cntry.code %in% c("MDG", "TLS", "BRA", "QAT", "SGP", "KWT", "BRN", "ARG", "SUR"))
+    filter(cntry.code %in% c("MDG", "TLS", "BRA", "QAT", "SGP", "KWT", "BRN", "ARG", "SUR", "BWA"))
     
   
   wdi %>%
-    filter(year==2016, cntry.code!="SSD") %>%
+    filter(year==2016) %>%
     select(cntry.code, year, ny.gdp.pcap.kd, fr.inr.rinr) %>%
     left_join(imf) %>%
     select(cntry.code, year, ny.gdp.pcap.kd, fr.inr.rinr, i_depositors_A1_pop, i_deposit_acc_A1_pop, Region) %>%
     filter(!is.na(fr.inr.rinr) & !is.na(ny.gdp.pcap.kd) & !is.na(i_depositors_A1_pop)) %>%
   ggplot(aes(x = ny.gdp.pcap.kd, y = fr.inr.rinr, size = i_depositors_A1_pop, color = Region)) +
     geom_point(alpha = 0.7) +
-   geom_text_repel(data = labels.bubble, aes(x = ny.gdp.pcap.kd, y = fr.inr.rinr, label = cntry.code), position = "identity",
-                   show.legend = FALSE, box.padding = 0.25) +
-    #geom_label_repel(aes(label = cntry.code)) +
+   geom_label_repel(data = labels.bubble, aes(label = economy), family = "Avenir Next", size = 3,
+                   show.legend = FALSE, angle = 30, nudge_x = 0.2, box.padding = 0.5) +
+    #geom_label(aes(label = cntry.code)) +
+    scale_color_brewer(palette = "Dark2") +
     labs(
       title = "The Cost of Formal Finance",
       subtitle = "As measured by the real interest rate, GDP per capita",
-      caption = "Note: South Sudan is excluded as an outlier. \n Source: World Development Indicators, IMF Financial Access Survey, 2016",
+      caption = "Source: World Development Indicators, IMF Financial Access Survey, 2016",
       y = "Real Interest Rate",
       x = "GDP per capita, (constant 2010 US$)"
     ) +
     theme(text = element_text(family = "Avenir Next"),
           plot.title = element_text(face = "bold"),
-          plot.subtitle = element_text(face = "italic"))
+          plot.subtitle = element_text(face = "italic")) +
+    annotate("rect", xmin = 0, xmax = 20000, ymin = 38, ymax = 55, alpha = 0.15) +
+    annotate("text", x = 17000, y = 50, label = "High cost of finance", family = "Avenir Next") +
+    annotate("rect", xmin = 1000, xmax = 16000, ymin = -18, ymax = -2, alpha = 0.15) +
+    annotate("text", x = 15000, y = -15, label = "Low cost of finance", family = "Avenir Next") +
+    scale_size_continuous(name = "# of Depositors per 1,000 adults")
   
   
 

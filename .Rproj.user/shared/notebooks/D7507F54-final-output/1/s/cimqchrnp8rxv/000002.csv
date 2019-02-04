@@ -1,0 +1,6 @@
+"0","finac.k.06 <- mutate(finac.k.06, year = 2006)
+finac.k.06 <- rename(finac.k.06, bank_usage = ""A4"", savings_usage = ""X_savings"", credit_usage = ""X_credit"", mfi_usage = ""X_cur_mfi"", insurance_usage = ""X_useins"")
+"
+"2","Error: Unknown columns `A4`, `X_savings`, `X_credit`, `X_cur_mfi` and `X_useins` 
+[90mCall `rlang::last_error()` to see a backtrace[39m
+"
