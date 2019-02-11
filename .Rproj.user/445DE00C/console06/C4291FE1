@@ -1,0 +1,199 @@
+]0;~/Documents/Data-Viz/fininc[?1034hMarissas-MacBook-Pro:fininc marissablock$ [KMarissas-MacBook-Pro:fininc marissablock$ git config -- list
+error: key does not contain a section: list
+]0;~/Documents/Data-Viz/finincMarissas-MacBook-Pro:fininc marissablock$ git config --list
+[?1h=core.excludesfile=~/.gitignore[m
+core.legacyheaders=false[m
+core.quotepath=false[m
+mergetool.keepbackup=true[m
+push.default=simple[m
+color.ui=auto[m
+color.interactive=auto[m
+repack.usedeltabaseoffset=true[m
+alias.s=status[m
+alias.a=!git add . && git status[m
+alias.au=!git add -u . && git status[m
+alias.aa=!git add . && git add -u . && git status[m
+alias.c=commit[m
+alias.cm=commit -m[m
+alias.ca=commit --amend[m
+alias.ac=!git add . && git commit[m
+alias.acm=!git add . && git commit -m[m
+alias.l=log --graph --all --pretty=format:'%C(yellow)%h%C(cyan)%d%Creset %s %C(white)- %an, %ar%Creset'[m
+:[K...skipping...
+core.excludesfile=~/.gitignore[m
+core.legacyheaders=false[m
+core.quotepath=false[m
+mergetool.keepbackup=true[m
+push.default=simple[m
+color.ui=auto[m
+color.interactive=auto[m
+repack.usedeltabaseoffset=true[m
+alias.s=status[m
+alias.a=!git add . && git status[m
+alias.au=!git add -u . && git status[m
+alias.aa=!git add . && git add -u . && git status[m
+alias.c=commit[m
+alias.cm=commit -m[m
+alias.ca=commit --amend[m
+alias.ac=!git add . && git commit[m
+alias.acm=!git add . && git commit -m[m
+alias.l=log --graph --all --pretty=format:'%C(yellow)%h%C(cyan)%d%Creset %s %C(white)- %an, %ar%Creset'[m
+alias.ll=log --stat --abbrev-commit[m
+alias.lg=log --color --graph --pretty=format:'%C(bold white)%h%Creset -%C(bold green)%d%Creset %s %C(bold green)(%cr)%Creset %C(bold blue)<%an>%Creset' --abbrev-commit --da[m te=relative[m
+:[K[H[2J[H[H[2J[Hcore.excludesfile=~/.gitignore[m
+core.legacyheaders=false[m
+core.quotepath=false[m
+mergetool.keepbackup=true[m
+push.default=simple[m
+color.ui=auto[m
+color.interactive=auto[m
+repack.usedeltabaseoffset=true[m
+alias.s=status[m
+alias.a=!git add . && git status[m
+alias.au=!git add -u . && git status[m
+alias.aa=!git add . && git add -u . && git status[m
+alias.c=commit[m
+alias.cm=commit -m[m
+alias.ca=commit --amend[m
+alias.ac=!git add . && git commit[m
+alias.acm=!git add . && git commit -m[m
+alias.l=log --graph --all --pretty=format:'%C(yellow)%h%C(cyan)%d%Creset %s %C(white)- %an, %ar%Creset'[m
+alias.ll=log --stat --abbrev-commit[m
+:[K[H[2J[H[H[2J[Hcore.excludesfile=~/.gitignore[m
+core.legacyheaders=false[m
+core.quotepath=false[m
+mergetool.keepbackup=true[m
+push.default=simple[m
+color.ui=auto[m
+color.interactive=auto[m
+repack.usedeltabaseoffset=true[m
+alias.s=status[m
+alias.a=!git add . && git status[m
+alias.au=!git add -u . && git status[m
+alias.aa=!git add . && git add -u . && git status[m
+:[K[H[2J[H[H[2J[Hcore.excludesfile=~/.gitignore[m
+core.legacyheaders=false[m
+core.quotepath=false[m
+mergetool.keepbackup=true[m
+push.default=simple[m
+color.ui=auto[m
+color.interactive=auto[m
+repack.usedeltabaseoffset=true[m
+alias.s=status[m
+alias.a=!git add . && git status[m
+alias.au=!git add -u . && git status[m
+alias.aa=!git add . && git add -u . && git status[m
+:[K[H[2J[H[H[2J[Hcore.excludesfile=~/.gitignore[m
+core.legacyheaders=false[m
+core.quotepath=false[m
+mergetool.keepbackup=true[m
+push.default=simple[m
+color.ui=auto[m
+color.interactive=auto[m
+repack.usedeltabaseoffset=true[m
+alias.s=status[m
+alias.a=!git add . && git status[m
+[KMarissas-MacBook-Pro:fininc marissablock$ pwd
+/Users/marissablock/Documents/Data-Viz/fininc
+]0;~/Documents/Data-Viz/finincMarissas-MacBook-Pro:fininc marissablock$ git status
+On branch master
+Your branch is up to date with 'origin/master'.
+
+Changes to be committed:
+  (use "git reset HEAD <file>..." to unstage)
+
+	[32mmodified:   .Rhistory[m
+	[32mnew file:   .Rproj.user/445DE00C/console06/C4291FE1[m
+	[32mnew file:   .Rproj.user/445DE00C/console06/C4291FE1.env[m
+	[32mmodified:   .Rproj.user/445DE00C/console06/INDEX001[m
+	[32mmodified:   .Rproj.user/445DE00C/pcs/source-pane.pper[m
+	[32mmodified:   .Rproj.user/445DE00C/pcs/windowlayoutstate.pper[m
+	[32mmodified:   .Rproj.user/445DE00C/rmd-outputs[m
+	[32mmodified:   .Rproj.user/445DE00C/sources/prop/325F296A[m
+	[32mmodified:   .Rproj.user/445DE00C/sources/prop/3EAAFDC2[m
+	[32mmodified:   .Rproj.user/445DE00C/sources/prop/FFCC952F[m
+	[32mrenamed:    .Rproj.user/445DE00C/sources/s-EB1B3B87/lock_file -> .Rproj.user/445DE00C/sources/s-67BA3964/542F1506-contents[m
+	[32mrenamed:    .Rproj.user/445DE00C/sources/s-EB1B3B87/69B7D4C0 -> .Rproj.user/445DE00C/sources/s-67BA3964/69B7D4C0[m
+	[32mnew file:   .Rproj.user/445DE00C/sources/s-67BA3964/69B7D4C0-contents[m
+	[32mrenamed:    .Rproj.user/445DE00C/sources/s-EB1B3B87/90B4694A -> .Rproj.user/445DE00C/sources/s-67BA3964/90B4694A[m
+	[32mnew file:   .Rproj.user/445DE00C/sources/s-67BA3964/90B4694A-contents[m
+	[32mrenamed:    .Rproj.user/445DE00C/sources/s-EB1B3B87/F1557217 -> .Rproj.user/445DE00C/sources/s-67BA3964/F1557217[m
+	[32mrenamed:    .Rproj.user/445DE00C/sources/s-EB1B3B87/F1557217-contents -> .Rproj.user/445DE00C/sources/s-67BA3964/F1557217-contents[m
+	[32mnew file:   .Rproj.user/445DE00C/sources/s-67BA3964/lock_file[m
+	[32mdeleted:    .Rproj.user/445DE00C/sources/s-EB1B3B87/69B7D4C0-contents[m
+	[32mdeleted:    .Rproj.user/445DE00C/sources/s-EB1B3B87/90B4694A-contents[m
+	[32mnew file:   .Rproj.user/shared/notebooks/D7507F54-final-output/1/445DE00C67BA3964/chunks.json[m
+	[32mnew file:   .Rproj.user/shared/notebooks/D7507F54-final-output/1/445DE00C80DC4D20/chunks.json[m
+	[32mnew file:   .Rproj.user/shared/notebooks/D7507F54-final-output/1/s/c2crtfwk2kkfo/000002.csv[m
+	[32mnew file:   .Rproj.user/shared/notebooks/D7507F54-final-output/1/s/c2crtfwk2kkfo/000003.error[m
+	[32mmodified:   .Rproj.user/shared/notebooks/D7507F54-final-output/1/s/chunks.json[m
+	[32mnew file:   dotdensity.png[m
+	[32mmodified:   explore.R[m
+	[32mmodified:   final-output.Rmd[m
+	[32mmodified:   final-output.html[m
+	[32mmodified:   prep.R[m
+	[32mmodified:   style.css[m
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	[31mmodified:   .Rproj.user/445DE00C/console06/C4291FE1[m
+	[31mmodified:   .Rproj.user/445DE00C/console06/INDEX001[m
+	[31mmodified:   .Rproj.user/445DE00C/sources/prop/325F296A[m
+	[31mmodified:   .Rproj.user/445DE00C/sources/s-67BA3964/F1557217[m
+	[31mdeleted:    dotdensity.png[m
+	[31mmodified:   final-output.Rmd[m
+
+]0;~/Documents/Data-Viz/finincMarissas-MacBook-Pro:fininc marissablock$ git add .[K[K final-output.RMD[K[Kmd
+]0;~/Documents/Data-Viz/finincMarissas-MacBook-Pro:fininc marissablock$ git status
+On branch master
+Your branch is up to date with 'origin/master'.
+
+Changes to be committed:
+  (use "git reset HEAD <file>..." to unstage)
+
+	[32mmodified:   .Rhistory[m
+	[32mnew file:   .Rproj.user/445DE00C/console06/C4291FE1[m
+	[32mnew file:   .Rproj.user/445DE00C/console06/C4291FE1.env[m
+	[32mmodified:   .Rproj.user/445DE00C/console06/INDEX001[m
+	[32mmodified:   .Rproj.user/445DE00C/pcs/source-pane.pper[m
+	[32mmodified:   .Rproj.user/445DE00C/pcs/windowlayoutstate.pper[m
+	[32mmodified:   .Rproj.user/445DE00C/rmd-outputs[m
+	[32mmodified:   .Rproj.user/445DE00C/sources/prop/325F296A[m
+	[32mmodified:   .Rproj.user/445DE00C/sources/prop/3EAAFDC2[m
+	[32mmodified:   .Rproj.user/445DE00C/sources/prop/FFCC952F[m
+	[32mrenamed:    .Rproj.user/445DE00C/sources/s-EB1B3B87/lock_file -> .Rproj.user/445DE00C/sources/s-67BA3964/542F1506-contents[m
+	[32mrenamed:    .Rproj.user/445DE00C/sources/s-EB1B3B87/69B7D4C0 -> .Rproj.user/445DE00C/sources/s-67BA3964/69B7D4C0[m
+	[32mnew file:   .Rproj.user/445DE00C/sources/s-67BA3964/69B7D4C0-contents[m
+	[32mrenamed:    .Rproj.user/445DE00C/sources/s-EB1B3B87/90B4694A -> .Rproj.user/445DE00C/sources/s-67BA3964/90B4694A[m
+	[32mnew file:   .Rproj.user/445DE00C/sources/s-67BA3964/90B4694A-contents[m
+	[32mrenamed:    .Rproj.user/445DE00C/sources/s-EB1B3B87/F1557217 -> .Rproj.user/445DE00C/sources/s-67BA3964/F1557217[m
+	[32mrenamed:    .Rproj.user/445DE00C/sources/s-EB1B3B87/F1557217-contents -> .Rproj.user/445DE00C/sources/s-67BA3964/F1557217-contents[m
+	[32mnew file:   .Rproj.user/445DE00C/sources/s-67BA3964/lock_file[m
+	[32mdeleted:    .Rproj.user/445DE00C/sources/s-EB1B3B87/69B7D4C0-contents[m
+	[32mdeleted:    .Rproj.user/445DE00C/sources/s-EB1B3B87/90B4694A-contents[m
+	[32mnew file:   .Rproj.user/shared/notebooks/D7507F54-final-output/1/445DE00C67BA3964/chunks.json[m
+	[32mnew file:   .Rproj.user/shared/notebooks/D7507F54-final-output/1/445DE00C80DC4D20/chunks.json[m
+	[32mnew file:   .Rproj.user/shared/notebooks/D7507F54-final-output/1/s/c2crtfwk2kkfo/000002.csv[m
+	[32mnew file:   .Rproj.user/shared/notebooks/D7507F54-final-output/1/s/c2crtfwk2kkfo/000003.error[m
+	[32mmodified:   .Rproj.user/shared/notebooks/D7507F54-final-output/1/s/chunks.json[m
+	[32mnew file:   dotdensity.png[m
+	[32mmodified:   explore.R[m
+	[32mmodified:   final-output.Rmd[m
+	[32mmodified:   final-output.html[m
+	[32mmodified:   prep.R[m
+	[32mmodified:   style.css[m
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	[31mmodified:   .Rproj.user/445DE00C/console06/C4291FE1[m
+	[31mmodified:   .Rproj.user/445DE00C/console06/C4291FE1.env[m
+	[31mmodified:   .Rproj.user/445DE00C/console06/INDEX001[m
+	[31mmodified:   .Rproj.user/445DE00C/sources/prop/325F296A[m
+	[31mmodified:   .Rproj.user/445DE00C/sources/s-67BA3964/F1557217[m
+	[31mdeleted:    dotdensity.png[m
+
+]0;~/Documents/Data-Viz/finincMarissas-MacBook-Pro:fininc marissablock$ git add .

@@ -19,9 +19,9 @@ library(RColorBrewer)
 library(haven)
 library(readxl)
 library(sf)
-library(tmap)
 library(extrafont)
 library(ggrepel)
+library(maptools)
 
 # Load data
 findex <- read_csv("../fininc-data/clean/clean.findex.csv")
@@ -118,6 +118,48 @@ Below, we see Madagascar has a very high interest rate and a small number of dep
 
 
 # The Global Findex
+```{r, fig.width = 9, fig.height = 7}
+# Get map of Africa
+data(wrld_simpl)
+afr <- wrld_simpl[wrld_simpl$REGION==2,]
+afr <- st_as_sf(afr)
+afr <- rename(afr, cntry.code = "ISO3")
+
+# Merge with Findex
+data <- afr %>%
+  left_join(findex, by = "cntry.code") %>%
+  filter(year==2017) %>%
+  select(cntry.code, geometry, account.t.d, country) %>%
+  st_as_sf()
+
+# Make labels
+labels <- data %>%
+  cbind(st_coordinates(st_centroid(data))) %>%
+  filter(country=="Kenya" | country=="Namibia" | country=="South Africa" | country=="Central African Republic" | country=="Niger")
+labels$country[labels$country=="Central African Republic"] <- "CAR"
+
+# Map
+  ggplot() +
+  geom_sf(data = afr) +
+    geom_sf(data = data, aes(fill = account.t.d)) +
+    geom_label_repel(data = labels, aes(X, Y, label = country), family = "Avenir Next", size = 3) +
+    coord_sf(datum=NA) +
+    scale_fill_distiller(palette = "Greens", direction = 1, name = "Proportion of \nrespondents") +
+    theme(panel.background = element_blank(),
+          text = element_text(family = "Avenir Next"),
+          plot.title = element_text(face = "bold"),
+          plot.subtitle = element_text(face = "italic"),
+          axis.title = element_blank(),
+          legend.position = "bottom", legend.direction = "horizontal",
+          ) +
+    annotate("text", x = -5, y = -12, label = "Gray represents \nno data", family = "Avenir Next", size = 3) +
+    labs(
+      title = "Kenya, Namibia, and South Africa have the highest \nproportion of the population having a financial account",
+      subtitle = "Whereas financial access is low in Niger and \nthe Central African Republic (CAR)",
+      caption = "Source: Global Findex, 2017")
+```
+
+
 ## Mobile Money in Africa
 
 ```{r, fig.width = 10, fig.height = 7}
@@ -141,7 +183,7 @@ findex %>%
   labs(
     title = "While Africa leads the way in mobile money access, in almost all countries, a higher proportion 
 of males have mobile money accounts",
-    subtitle = "Gender Difference in Mobile Money Access",
+    subtitle = "Gender Difference in Mobile Money Access, 2017",
     caption = "Note: Excludes South Sudan and Central Africa Republic, for which there is no data.
     Source: Global Findex, 2017",
     y = "% of respondents with mobile money accounts (Age +15)",
