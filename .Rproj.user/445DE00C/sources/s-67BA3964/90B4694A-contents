@@ -57,11 +57,46 @@ imf %>%
 
 
 
+
+
 # Map merging shape file and fin access survey
+
+# Create county labels
+labels2 <- kenya %>%
+  cbind(st_coordinates(st_centroid(kenya))) %>%
+  filter(county=="Isiolo" | county=="Lamu" | county=="Marsabit")
+  labels2$county[labels2$county=="Isiolo"] <- "Isiolo, 83.7"
+  labels2$county[labels2$county=="Lamu"] <- "Lamu, 41.5"
+  labels2$county[labels2$county=="Marsabit"] <- "Marsabit, 43.9"
+
+# Map
 finac.k.15 %>%
+  mutate(nobank = bank_usage - 2) %>%
   group_by(county) %>%
-  filter(!is.na(f6_1)) %>%
-  summarize(n = n(),
+  filter(nobank==1) %>%
+  summarize(n = n()) %>%
+  left_join(pop, by = "county") %>%
+  mutate(usepcap = (n/pop_2015)*100000) %>%
+  left_join(kenya, by = "county") %>%
+  cbind(st_coordinates(st_centroid(kenya))) %>%
+  mutate(density = n/Shape_Area) %>%
+  ggplot() +
+  geom_sf(aes(fill = usepcap)) +
+  geom_label_repel(data = labels2, aes(X, Y, label = county), size = 3, family = "Avenir Next") +
+  coord_sf(datum=NA) +
+  scale_fill_distiller(name = NULL, palette = "Greens", direction = 1) +
+  theme(panel.background = element_blank(),
+        text = element_text(family = "Avenir Next"),
+        plot.title = element_text(face = "bold"),
+        plot.subtitle = element_text(face = "italic"),
+        axis.title = element_blank()) +
+  labs(title = "Individuals who have never banked are \nconcentrated in three counties",
+       subtitle = "Individuals who never banked per 100,000 in 2015",
+       caption = "Source: 2015-16 Financial Access Survey \n Population data is a projection from UNICEF")
+
+
+
+#### OLD
             daily = sum(f6_1[f6_1==1]),
             prp = daily/n) %>%
   left_join(pop, by = "county") %>%
@@ -75,9 +110,7 @@ finac.k.15 %>%
   ggplot() +
   geom_sf(aes(fill = usepcap)) +
   coord_sf(datum=NA) +
-  #scale_fill_gradient2(palette = "Dark2") +
-  #geom_label_repel(aes(X, Y, label = county))
-  scale_fill_gradient2(name = "Proportion", low = "#e8f5f1", mid = "#76c4ad", high = "#1b9e77", guide = "colorbar", midpoint = 0.10) +
+  scale_fill_distiller(name = "Proportion", palette = "Greens", direction = 1) +
   theme(panel.background = element_blank(),
         text = element_text(family = "Avenir Next")) +
   labs(title = "Daily Usage of Mobile Money",
@@ -104,48 +137,8 @@ finac.k.15 %>%
   ggplot() +
     geom_sf(aes(fill = daily))
 
-## Choropleth of Access to Finance
-  # Get map of Africa
-  data(wrld_simpl)
-  afr <- wrld_simpl[wrld_simpl$REGION==2,]
-  afr <- st_as_sf(afr)
-  afr <- rename(afr, cntry.code = "ISO3")
-  
-  # Merge with Findex
-  data <- afr %>%
-    left_join(findex, by = "cntry.code") %>%
-    filter(year==2017) %>%
-    select(cntry.code, geometry, account.t.d, country) %>%
-    st_as_sf()
-  
-  # Make labels
-  labels <- data %>%
-    cbind(st_coordinates(st_centroid(data))) %>%
-    filter(country=="Kenya" | country=="Namibia" | country=="South Africa" | country=="Central African Republic" | country=="Niger")
-  labels$country[labels$country=="Central African Republic"] <- "CAR"
-  
-  # Map
-    ggplot() +
-    geom_sf(data = afr) +
-      geom_sf(data = data, aes(fill = account.t.d)) +
-      geom_label_repel(data = labels, aes(X, Y, label = country), family = "Avenir Next", size = 3) +
-      coord_sf(datum=NA) +
-      scale_fill_distiller(palette = "Greens", direction = 1, name = "Proportion of \nrespondents") +
-      theme(panel.background = element_blank(),
-            text = element_text(family = "Avenir Next"),
-            plot.title = element_text(face = "bold"),
-            plot.subtitle = element_text(face = "italic"),
-            axis.title = element_blank(),
-            legend.position = "bottom", legend.direction = "horizontal",
-            ) +
-      annotate("text", x = -5, y = -12, label = "Gray represents \nno data", family = "Avenir Next", size = 2.5) +
-      labs(
-        title = "Kenya, Namibia, and South Africa have the highest \nproportion of the population having a financial account",
-        subtitle = "Whereas financial access is low in Niger and \nthe Central African Republic (CAR)",
-        caption = "Source: Global Findex, 2017")
-    
-      
 
+      
   
 ## Dot Density
 # MFI

@@ -30,6 +30,20 @@ finac.k.15 <- read_csv("../fininc-data/clean/clean.finac.k.15.csv")
 finac.k.13 <- read_csv("../fininc-data/clean/clean.finac.k.13.csv")
 finac.k.06 <- read_csv("../fininc-data/clean/clean.finac.k.06.csv")
 wdi <- read_csv("../fininc-data/clean/clean.wdi.csv")
+pop <- read_csv("../fininc-data/clean/clean.pop.csv")
+
+
+# Get geospatial data
+kenya <- read_sf(dsn="../fininc-data/ken_admbnda_adm1_iebc_20180607", layer = "ken_admbnda_adm1_iebc_20180607")
+  
+  # Cut excess variables
+  kenya <- kenya %>%
+    select(Shape_Leng, Shape_Area, ADM1_EN, geometry) %>%
+    rename(county = "ADM1_EN")
+
+  # Project data
+  kenya <- st_transform(kenya, 21097)
+  
 
 ```
 
@@ -37,7 +51,7 @@ wdi <- read_csv("../fininc-data/clean/clean.wdi.csv")
 # Financial Access Survey, IMF
 Technology has been instrumental in improving access to finance, namely mobile money and digital payments. East Africa, and Kenya in particular, have been at the forefront of mobile money. Mobile money allows for easy and safe transfers of resources among households and individuals and has significantly reduced transaction costs.
 
-```{r, fig.height = 5, fig.width = 7}
+```{r, fig.height = 5, fig.width = 7, fig.align = 'center'}
 imf %>%
   filter(!is.na(i_mob_transactions_value_GDP), year>2011) %>%
   group_by(Region, year) %>%
@@ -74,7 +88,7 @@ Finance may be considered a constraint to economic growth if it's supply is cons
 
 Below, we see Madagascar has a very high interest rate and a small number of depositors. Thus, one might conclude that low savings is causing the high cost of finance. Brazil also has a very high interest rate, but the number of depositors is not quite as small as Madagascar. In contrast, the interest rate in Singaporeis not very high, and there are a large number of depositors, indicating that finance is not a constraint to the economy.
 
-```{r, fig.height = 5, fig.width = 9}
+```{r, fig.height = 5, fig.width = 9, fig.align = 'center'}
   
   # Create dataframe of labels - MDG, TLS, BRA, QAT, SGP, KWT, BRN, ARG, SUR
   labels.bubble <-   wdi %>%
@@ -118,7 +132,7 @@ Below, we see Madagascar has a very high interest rate and a small number of dep
 
 
 # The Global Findex
-```{r, fig.width = 9, fig.height = 7}
+```{r, fig.width = 9, fig.height = 7, fig.align = 'center'}
 # Get map of Africa
 data(wrld_simpl)
 afr <- wrld_simpl[wrld_simpl$REGION==2,]
@@ -152,7 +166,7 @@ labels$country[labels$country=="Central African Republic"] <- "CAR"
           axis.title = element_blank(),
           legend.position = "bottom", legend.direction = "horizontal",
           ) +
-    annotate("text", x = -5, y = -12, label = "Gray represents \nno data", family = "Avenir Next", size = 3) +
+    annotate("text", x = -5, y = -12, label = "Gray represents \nno data", family = "Avenir Next", size = 4) +
     labs(
       title = "Kenya, Namibia, and South Africa have the highest \nproportion of the population having a financial account",
       subtitle = "Whereas financial access is low in Niger and \nthe Central African Republic (CAR)",
@@ -162,7 +176,7 @@ labels$country[labels$country=="Central African Republic"] <- "CAR"
 
 ## Mobile Money in Africa
 
-```{r, fig.width = 10, fig.height = 7}
+```{r, fig.width = 10, fig.height = 7, fig.align = 'center'}
 findex %>%
   filter(year == 2017, region=="Sub-Saharan Africa (excluding high income)") %>%
   select(country, mobileaccount.t.d.1, mobileaccount.t.d.2) %>%
@@ -204,9 +218,48 @@ Kenya leads the way in mobile money, while in some countries, like Ethiopia, mob
 
 The following charts utilize the 2015-16 Financial Access Survey from Kenya.
 
+In general, Kenya does well on providing access to finance. There are only a few counties where access to finance is lacking.
+```{r, fig.align = 'center'}
+# Create county labels
+labels2 <- kenya %>%
+  cbind(st_coordinates(st_centroid(kenya))) %>%
+  filter(county=="Isiolo" | county=="Lamu" | county=="Marsabit")
+  labels2$county[labels2$county=="Isiolo"] <- "Isiolo, 83.7"
+  labels2$county[labels2$county=="Lamu"] <- "Lamu, 41.5"
+  labels2$county[labels2$county=="Marsabit"] <- "Marsabit, 43.9"
+
+# Map
+finac.k.15 %>%
+  mutate(nobank = bank_usage - 2) %>%
+  group_by(county) %>%
+  filter(nobank==1) %>%
+  summarize(n = n()) %>%
+  left_join(pop, by = "county") %>%
+  mutate(usepcap = (n/pop_2015)*100000) %>%
+  left_join(kenya, by = "county") %>%
+  cbind(st_coordinates(st_centroid(kenya))) %>%
+  mutate(density = n/Shape_Area) %>%
+  ggplot() +
+  geom_sf(aes(fill = usepcap)) +
+  geom_label_repel(data = labels2, aes(X, Y, label = county), size = 3, family = "Avenir Next") +
+  coord_sf(datum=NA) +
+  scale_fill_distiller(name = NULL, palette = "Greens", direction = 1) +
+  theme(panel.background = element_blank(),
+        text = element_text(family = "Avenir Next"),
+        plot.title = element_text(face = "bold"),
+        plot.subtitle = element_text(face = "italic"),
+        axis.title = element_blank()) +
+  labs(title = "Individuals who have never banked are \nconcentrated in three counties",
+       subtitle = "Individuals who never banked per 100,000 in 2015",
+       caption = "Source: 2015-16 Financial Access Survey \n Population data is a projection from UNICEF")
+
+```
+
+
+
 Access to finance for entrepreneurs is a key ingredient to economic growth. When small-to-medium enterprises, which are characteristic of Kenya, can access financial services, these business can save, invest, and ultimately grow. Yet, surprisingly, few business owners use these services.
 
-```{r,fig.height = 6, fig.width = 5}
+```{r,fig.height = 6, fig.width = 5, fig.align = 'center'}
 finac.k.15 %>%
   filter(!is.na(l11_1)) %>%
   group_by(l11_1) %>%
@@ -235,7 +288,7 @@ finac.k.15 %>%
 
 Rather than taking out loans, Kenyan business owners tend to utilize their own personal savings to start their business. This could be a result of a number of issues, including high interest rates or the inability of the financial sector to appropriately access risk.
 
-```{r}
+```{r, fig.align = 'center'}
 # First, create dataframe of labels
 label <- finac.k.15 %>%
   filter(l5_1!="NA", l5_1<995) %>%
@@ -292,7 +345,7 @@ finac.k.15 %>%
 
 Looking beyond business owners, Kenyans utilize all sorts of financial services. Although many business-owners do not use bank accounts for business purposes, most individuals living in urban areas do use bank accounts. However, the difference in access between urban males and females is significantly different, as is the difference between rural males and females.
 
-```{r}
+```{r, fig.align = 'center'}
 
 finac.k.15 %>%
   group_by(cluster_type, gender_of_respondent) %>%
@@ -325,9 +378,9 @@ finac.k.15 %>%
         panel.background = element_rect(fill = "white"))
 ```
 
-How has financial product usage changed over time?
+Finally, how has financial product usage changed over time? Both savings and bank usage have increased significantly. Microfinance, once a touted solution, has seen limited change.
 
-```{r, fig.height = 7.5, fig.width = 5}
+```{r, fig.height = 7.5, fig.width = 5, fig.align = 'center'}
 ## Slope graph
 finac.k.06 <- mutate(finac.k.06, year = 2006)
 finac.k.06 <- rename(finac.k.06, bank_usage = "A4", savings_usage = "X_savings", credit_usage = "X_credit", mfi_usage = "X_cur_mfi", insurance_usage = "X_useins")
