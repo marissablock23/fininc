@@ -218,40 +218,92 @@ Kenya leads the way in mobile money, while in some countries, like Ethiopia, mob
 
 The following charts utilize the 2015-16 Financial Access Survey from Kenya.
 
-In general, Kenya does well on providing access to finance. There are only a few counties where access to finance is lacking.
-```{r, fig.align = 'center'}
-# Create county labels
-labels2 <- kenya %>%
-  cbind(st_coordinates(st_centroid(kenya))) %>%
-  filter(county=="Isiolo" | county=="Lamu" | county=="Marsabit")
-  labels2$county[labels2$county=="Isiolo"] <- "Isiolo, 83.7"
-  labels2$county[labels2$county=="Lamu"] <- "Lamu, 41.5"
-  labels2$county[labels2$county=="Marsabit"] <- "Marsabit, 43.9"
+In general, Kenya does well on providing access to finance. However, individuals who have never banked represent the largest proportion in the 2015-16 Finance Access Survey.
+```{r, fig.width = 8, fig.height = 7, fig.align = 'center'}
+  ## Dot Density of banked and unbanked
 
-# Map
-finac.k.15 %>%
-  mutate(nobank = bank_usage - 2) %>%
-  group_by(county) %>%
-  filter(nobank==1) %>%
-  summarize(n = n()) %>%
-  left_join(pop, by = "county") %>%
-  mutate(usepcap = (n/pop_2015)*100000) %>%
-  left_join(kenya, by = "county") %>%
+# Create county labels
+  labels3 <- kenya %>%
   cbind(st_coordinates(st_centroid(kenya))) %>%
-  mutate(density = n/Shape_Area) %>%
+  filter(county=="Mandera" | county=="Garissa" | county=="Wajir")
+
+  # No bank
+  nobank <- finac.k.15 %>%
+    filter(bank_usage==3) %>%
+    group_by(county) %>%
+    summarize(n = n())
+  
+  # Used to bank
+  prevbank <- finac.k.15 %>%
+    filter(bank_usage==2) %>%
+    group_by(county) %>%
+    summarize(n2 = n())
+  
+  # Merge no bank + used to bank
+  bank.usage <- nobank %>%
+    left_join(prevbank, by = "county")
+  
+  
+  sf <- finac.k.15 %>%
+    filter(bank_usage==1) %>%
+    group_by(county) %>%
+    summarize(n3 = n()) %>%
+    left_join(bank.usage, by = "county") %>%
+    left_join(kenya, by = "county") %>%
+    st_as_sf() %>%
+    select(county, n3, n, n2, geometry)
+
+  random_round <- function(x) {
+    v=as.integer(x)
+    r=x-v
+    test=runif(length(r), 0.0, 1.0)
+    add=rep(as.integer(0),length(r))
+    add[r>test] <- as.integer(1)
+    value=v+add
+    ifelse(is.na(value) | value<0,0,value)
+    return(value)
+  }
+  
+  num_dots <- as.data.frame(sf) %>%
+    select(n3, n, n2) %>%
+    mutate_all(funs(./1)) %>%
+    mutate_all(random_round)
+  
+  sf_dots <- map_df(names(num_dots),
+                    ~st_sample(sf, size = num_dots[,.x], type = "random") %>%
+                      st_cast("POINT") %>%
+                      st_coordinates() %>%
+                      as_tibble() %>%
+                      setNames(c("lon", "lat")) %>%
+                      mutate(mob = .x)
+  ) %>%
+    slice(sample(1:n()))
+  
   ggplot() +
-  geom_sf(aes(fill = usepcap)) +
-  geom_label_repel(data = labels2, aes(X, Y, label = county), size = 3, family = "Avenir Next") +
-  coord_sf(datum=NA) +
-  scale_fill_distiller(name = NULL, palette = "Greens", direction = 1) +
-  theme(panel.background = element_blank(),
-        text = element_text(family = "Avenir Next"),
-        plot.title = element_text(face = "bold"),
-        plot.subtitle = element_text(face = "italic"),
-        axis.title = element_blank()) +
-  labs(title = "Individuals who have never banked are \nconcentrated in three counties",
-       subtitle = "Individuals who never banked per 100,000 in 2015",
-       caption = "Source: 2015-16 Financial Access Survey \n Population data is a projection from UNICEF")
+    geom_sf(data = sf, fill = "transparent", color = "white") +
+    geom_point(data = sf_dots, aes(lon, lat, color = mob), size = 1, alpha = 0.7) +
+    geom_label(data = labels3, aes(X, Y, label = county), size = 3, family = "Avenir Next") +
+    coord_sf(crs = 21097, datum = NA) +
+    scale_color_brewer(name = NULL, labels = c("Never banked", "Previously banked", "Currently banked"), palette = "Dark2") +
+    labs(
+      x = NULL,
+      y = NULL,
+      title = "Individuals who have never banked dominate",
+      subtitle = "Some counties in the northeast tend to have more unbanked individuals",
+      caption = "Source: Financial Access Survey 2015-16, Kenya"
+    ) +
+    theme(text = element_text(family = "Avenir Next", color = "white"),
+          plot.title = element_text(face = "bold"),
+          plot.subtitle = element_text(face = "italic"),
+          legend.position = "bottom", legend.direction = "horizontal",
+          aspect.ratio = 1.05,
+          plot.background = element_rect(fill = "#212121", color = NA), 
+          panel.background = element_rect(fill = "#212121", color = NA),
+          legend.background = element_rect(fill = "#212121", color = NA),
+          legend.key = element_rect(fill = "#212121", color = NA),
+          legend.text = element_text(size = 10),
+    )
+  
 
 ```
 

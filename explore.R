@@ -228,16 +228,93 @@ sf_dots <- map_df(names(num_dots),
 
 ##  
 
-
-
-
-
-
-
-
+  ## Dot Density of banked and unbanked
+  # No bank
+  nobank <- finac.k.15 %>%
+    filter(bank_usage==3) %>%
+    group_by(county) %>%
+    summarize(n = n())
+  
+  # Used to bank
+  prevbank <- finac.k.15 %>%
+    filter(bank_usage==2) %>%
+    group_by(county) %>%
+    summarize(n2 = n())
+  
+  # Merge no bank + used to bank
+  bank.usage <- nobank %>%
+    left_join(prevbank, by = "county")
+  
+  
+  sf <- finac.k.15 %>%
+    filter(bank_usage==1) %>%
+    group_by(county) %>%
+    summarize(n3 = n()) %>%
+    left_join(bank.usage, by = "county") %>%
+    left_join(kenya, by = "county") %>%
+    st_as_sf() %>%
+    select(county, n3, n, n2, geometry)
+   # filter(county=="Nairobi" | county=="Kiambu" | county== "Narok" | county== "Murang'a" | county== "Nakuru" | county== "Kajiado" | county== "Nyandarua"
+    #       | county== "Kakamega" | county== "Bungoma" | county== "Bomet" | county=="Baringo" | county=="Nyamira" | county == "Migori" | county== "Homa Bay"
+     #      | county== "Kisii" | county== "Kisumu" | county == "Kericho" | county== "Vihiga" | county== "Busia" | county== "Siaya" | county== "Nandi")
+  
+  random_round <- function(x) {
+    v=as.integer(x)
+    r=x-v
+    test=runif(length(r), 0.0, 1.0)
+    add=rep(as.integer(0),length(r))
+    add[r>test] <- as.integer(1)
+    value=v+add
+    ifelse(is.na(value) | value<0,0,value)
+    return(value)
+  }
+  
+  num_dots <- as.data.frame(sf) %>%
+    select(n3, n, n2) %>%
+    mutate_all(funs(./1)) %>%
+    mutate_all(random_round)
+  
+  sf_dots <- map_df(names(num_dots),
+                    ~st_sample(sf, size = num_dots[,.x], type = "random") %>%
+                      st_cast("POINT") %>%
+                      st_coordinates() %>%
+                      as_tibble() %>%
+                      setNames(c("lon", "lat")) %>%
+                      mutate(mob = .x)
+  ) %>%
+    slice(sample(1:n()))
+  
   ggplot() +
-  geom_sf() +
-  geom_point(aes(long, lat))
+    geom_sf(data = sf, fill = "transparent", color = "white") +
+    geom_point(data = sf_dots, aes(lon, lat, color = mob), size = 1, alpha = 0.7) +
+    #coord_sf(xlim=c(-20000, 450332), ylim = c(-200000, -20000)) +
+    coord_sf(crs = 21097, datum = NA) +
+    scale_color_brewer(name = NULL, labels = c("Never banked", "Previously banked", "Currently banked"), palette = "Dark2") +
+    labs(
+      x = NULL,
+      y = NULL,
+      title = "Individuals who have never banked dominate",
+      subtitle = "Some counties in the northeast tend to have more unbanked",
+      caption = "Source: Financial Access Survey 2015-16, Kenya"
+    ) +
+    theme(text = element_text(family = "Avenir Next", color = "white"),
+          plot.title = element_text(face = "bold"),
+          plot.subtitle = element_text(face = "italic"),
+          legend.position = "bottom", legend.direction = "horizontal",
+          aspect.ratio = 1.05,
+          plot.background = element_rect(fill = "#212121", color = NA), 
+          panel.background = element_rect(fill = "#212121", color = NA),
+          legend.background = element_rect(fill = "#212121", color = NA),
+          legend.key = element_rect(fill = "#212121", color = NA),
+          legend.text = element_text(size = 10),
+    )
+  
+  
+
+
+
+
+
 
 
 
