@@ -227,6 +227,15 @@ kenya <- read_sf(dsn="../fininc-data/ken_admbnda_adm1_iebc_20180607", layer = "k
   mfib.loc$county[mfib.loc$county=="Elgeyo Marakwet"] <- "Elgeyo-Marakwet"
 
 
+  # Map of Africa
+  africa <- read_sf(dsn="../fininc-data/countries", layer = "ne_50m_admin_0_countries")
+  
+  africa <- africa %>%
+    filter(CONTINENT == "Africa") %>%
+    rename(cntry.code = "ISO_A3")  
+  
+  
+
 ## 8. WDI Data
 wdi <- read_csv("../fininc-data/wdi.csv", na = "..",
                 col_types = cols(
