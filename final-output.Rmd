@@ -57,6 +57,10 @@ kenya <- read_sf(dsn="../fininc-data/ken_admbnda_adm1_iebc_20180607", layer = "k
 
 ```
 
+This project aims to explore data on financial inclusion and mobile money, primarily in developing countries.
+
+Financial inclusion means that households and businesses can access financial products and services for day-to-day spending, long-term planning, or emergencies. At the most basic level, financial inclusion enables access to an account to use for payments and savings. Shifting payments (for work, agricultural goods, remittances, government transfers, etc.) from cash into accounts can improve efficiency and convenience. Similarly, accounts for savings can provide safety from theft, but also curb impulse spending. Additionally, financial inclusion also incorporates access to credit and insurance. Ultimately, reliable access to finance can serve to reduce poverty by enabling individuals to invest in health, education, and their livelihoods. Evidence at the micro-level from various interventions supports this claim, although for microcredit the evidence is mixed.
+
 
 ## Analyzing the Cost of Finance
 Finance may be considered a constraint to economic growth if the supply is constrained relative to demand. One means of understanding this is by analyzing the cost of finance, as measured by the real interest rate. **A high interest rate, indicates a high cost of finance.** A high cost of finance could be the result of low savings or costly intermediation. If low savings is the culprit, then we would expect that countries with a high interest rate also have a low savings, which is measured here as the number of depositors with commerical banks per 1,000 adults. **A small number of depositors may indicate that banks have a limited amounts of funds to access and loan.**
@@ -141,7 +145,7 @@ In the chart below, we can take a closer look at the variation in economies with
                    show.legend = FALSE, angle = 30, nudge_x = 0.2, box.padding = 0.5) +
     labs(
       title = "A Closer Look at economies with GDP per capita less than $20,000",
-      subtitle = "As measured by the real interest rate, GDP per capita",
+      subtitle = "As measured by the real interest rate, GDP per capita\n\nValues in labels are # of depositors",
       caption = "Source: World Development Indicators, IMF Financial Access Survey, 2016",
       y = "Real Interest Rate (%)",
       x = "GDP per capita, (constant 2010 US$)"
@@ -271,10 +275,12 @@ For context, Isiolo, Marsabit, and Lamu are some of the least populated counties
 # Create county labels
 labels.county <- kenya %>%
   cbind(st_coordinates(st_centroid(kenya))) %>%
-  filter(county=="Isiolo" | county=="Lamu" | county=="Marsabit")
+  filter(county=="Isiolo" | county=="Lamu" | county=="Marsabit" | county=="Nairobi" | county=="Nakuru")
   labels.county$county[labels.county$county=="Isiolo"] <- "Isiolo, 83.7"
   labels.county$county[labels.county$county=="Lamu"] <- "Lamu, 41.5"
- labels.county$county[labels.county$county=="Marsabit"] <- "Marsabit, 43.9"
+  labels.county$county[labels.county$county=="Marsabit"] <- "Marsabit, 43.9"
+  labels.county$county[labels.county$county=="Nairobi"] <- "Nairobi, 3.6"
+  labels.county$county[labels.county$county=="Nakuru"] <- "Nakuru, 4.7"
 
 # Map
 finac.k.15 %>%
@@ -286,7 +292,6 @@ finac.k.15 %>%
   mutate(usepcap = (n/pop_2015)*100000) %>%
   left_join(kenya, by = "county") %>%
   cbind(st_coordinates(st_centroid(kenya))) %>%
-  mutate(density = n/Shape_Area) %>%
   ggplot() +
   geom_sf(aes(fill = cut_number(usepcap, 5)), size = 0.2, color = "white") +
   geom_label_repel(data = labels.county, aes(X, Y, label = county), size = 3, family = "Avenir Next") +
@@ -307,7 +312,9 @@ finac.k.15 %>%
 ```
 
 
-Kenyans utilize all sorts of financial services. A majority of individuals have a savings account, regardless of sex or location. Most individuals living in urban areas use bank accounts, whereas in rural areas, this is less prominent. Instead, individuals in rural areas tend to use more loans. For bank users, the difference in access between urban males and females is significantly different, as is the difference between rural males and females. Finally, few individuals utilize microfinance.
+Kenyans utilize all sorts of financial services. A majority of individuals have a savings account, regardless of sex or location. Most individuals living in urban areas use bank accounts, whereas in rural areas, this is less prominent. Instead, individuals in rural areas tend to use more loans. For bank users, the difference in access between urban males and females is significantly different, as is the difference between rural males and females. Finally, few individuals utilize microfinance, which was once touted as a promising international development intervention [^2].
+
+[^2]: https://www.vox.com/future-perfect/2019/1/15/18182167/microcredit-microfinance-poverty-grameen-bank-yunus
 ```{r, fig.align = 'center'}
 
 finac.k.15 %>%
@@ -339,9 +346,7 @@ finac.k.15 %>%
         axis.ticks = element_blank())
 ```
 
-How has financial product usage changed over time? Both savings and bank usage have increased significantly. Microfinance, once a touted solution, has seen limited change [^2].
-
-[^2]: https://www.vox.com/future-perfect/2019/1/15/18182167/microcredit-microfinance-poverty-grameen-bank-yunus
+How has financial product usage changed over time? Both savings and bank usage have increased significantly, whereas microfinance has seen little growth.
 
 ```{r, fig.height = 7.5, fig.width = 5, fig.align = 'center'}
 ## Slope graph
@@ -414,7 +419,7 @@ waffle <- finac.k.15 %>%
 ```
 
 Rather than taking out loans, Kenyan business owners tend to utilize their own personal savings to start their business. This could be a result of a number of issues, including high interest rates or the inability of the financial sector to appropriately access risk.
-```{r, fig.height = 9, fig.width = 11, fig.align = 'center'}
+```{r, fig.height = 9.5, fig.width = 11.5, fig.align = 'center'}
 # First, create dataframe of labels
 label <- finac.k.15 %>%
   filter(l5_1!="NA", l5_1<995) %>%
@@ -432,6 +437,7 @@ label <- finac.k.15 %>%
   label$Sex[label$Sex=="pct.f"] <- 2
   label$Sex[label$Sex=="pct.m"] <- 1
   label$Sex<- as.numeric(label$Sex)
+  
 # Now, get dataframe of counts and merge in labels
 finac.k.15 %>%
   filter(l5_1!="NA", l5_1<995) %>%
