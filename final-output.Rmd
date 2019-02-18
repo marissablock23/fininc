@@ -418,7 +418,7 @@ waffle <- finac.k.15 %>%
     )
 ```
 
-Rather than taking out loans, Kenyan business owners tend to utilize their own personal savings to start their business. This could be a result of a number of issues, including high interest rates or the inability of the financial sector to appropriately access risk.
+Rather than taking out loans, Kenyan business owners tend to utilize their own personal savings to start their business. This could be a result of a number of issues, including high interest rates or the inability of the financial sector to appropriately access risk. The very small values for males in the top right corner are all 0.6% and less, which includes: Government fund, Don't known, Mobile, and Money lender. For females, the small value is Government fund, at 0.3%.
 ```{r, fig.height = 9.5, fig.width = 11.5, fig.align = 'center'}
 # First, create dataframe of labels
 label <- finac.k.15 %>%
@@ -470,5 +470,6 @@ finac.k.15 %>%
        subtitle = "Females also receive more gifts from family or friends.\n\nIn this survey, females represent about 65% of business owners.",
        caption = "Source: Financial Access Survey, 2015-2016, Kenya"
   ) +
-  my.theme
+  my.theme 
+# Attempted to add annotations for un-readable values, but unable to do so. No x, y coordinates on tree map. annotate("text", x = 1, y = 1, label = "Test") just puts labels at center of tree map. Adjusting x and y values does not matter.
 ```
