@@ -5,6 +5,11 @@ output:
   html_document:    
     code_folding: hide
     css: style.css
+    toc: true
+    toc_depth: 2
+    toc_float: true
+bibliography: bib.bib
+nocite: "@DVN/QUTLO2_2016"
 ---
 ```{r global_options, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
@@ -49,7 +54,9 @@ kenya <- read_sf(dsn="../fininc-data/ken_admbnda_adm1_iebc_20180607", layer = "k
           plot.title = element_text(face = "bold"),
           plot.subtitle = element_text(face = "italic"),
           panel.grid.minor = element_blank(),
-          panel.grid = element_line(linetype = "solid", size = 0.3)
+          panel.grid = element_line(linetype = "solid", size = 0.3),
+          panel.border = element_rect(color = "gray", fill = NA, size = 0.1),
+          panel.background = element_rect(color = "black", fill = "#f2f2f2")
           )
   
 # Define colors - 6-class Dark2 theme from ColorBrewer2.0
@@ -104,7 +111,8 @@ Below, we first observe that there is no clear relationship between GDP and inte
           legend.justification = c("left", "top"),
           legend.box.just = "left",
           legend.margin = margin(6, 6, 6, 6),
-          legend.box.background = element_rect()) +
+          legend.box.background = element_rect(),
+          panel.grid = element_line(linetype = "solid", size = 0.2)) +
     annotate("rect", xmin = 0, xmax = 20000, ymin = 38, ymax = 55, alpha = 0.15) +
     annotate("text", x = 17000, y = 50, label = "High cost of finance", family = "Avenir Next") +
     annotate("rect", xmin = 1000, xmax = 16000, ymin = -18, ymax = -2, alpha = 0.15) +
@@ -155,7 +163,8 @@ In the chart below, we can take a closer look at the variation in economies with
           legend.justification = c("left", "top"),
           legend.box.just = "left",
           legend.margin = margin(6, 6, 6, 6),
-          legend.box.background = element_rect())
+          legend.box.background = element_rect(),
+          )
 ```
 
 
@@ -226,6 +235,8 @@ of males have mobile money accounts",
   ) +
   scale_y_continuous(breaks = c(0, 10, 20, 30, 40, 50, 60, 70, 80)) +
   my.theme +
+  theme(panel.background = element_blank(),
+        panel.border = element_blank()) +
   annotate("rect", xmin = 25, xmax = 31, ymin = 61, ymax = 83, alpha = 0.15) +
   annotate("text", x = 28, y = 62, label = "M-Pesa, the leading mobile-money\nservice, was first introduced\nin Kenya in 2007. Since then, mobile\nmoney adoption in Kenya has\nfar exceeded other African countries.", 
            family = "Avenir Next", size = 3, hjust = 0) +
@@ -267,7 +278,9 @@ finac.k.15 %>%
         legend.justification = c("left", "top"),
         legend.box.just = "left",
         legend.margin = margin(6, 6, 6, 6),
-        legend.box.background = element_rect())
+        legend.box.background = element_rect(),
+        panel.background = element_blank(),
+        panel.border = element_blank())
 ```
 
 For context, Isiolo, Marsabit, and Lamu are some of the least populated counties, whereas Nairobi and Nakuru are the most populated.
@@ -300,7 +313,8 @@ finac.k.15 %>%
                     labels = c("Less than 7.72", "7.72-9.74", "9.75-11.4", "11.5-16.9", "17-83.7")) +
   my.theme +
   theme(panel.background = element_blank(),
-        axis.title = element_blank()) +
+        axis.title = element_blank(),
+        panel.border = element_blank()) +
   labs(title = "Individuals who have never banked are \nconcentrated in three counties",
        subtitle = "Individuals who never banked per 100,000 in 2015",
        caption = "Source: 2015-16 Financial Access Survey \n Population data is a projection from UNICEF") +
@@ -342,8 +356,9 @@ finac.k.15 %>%
     x = NULL
   ) +
   my.theme +
-  theme(panel.background = element_rect(fill = "white"),
-        axis.ticks = element_blank())
+  theme(panel.background = element_blank(),
+        axis.ticks = element_blank(),
+        panel.border = element_blank())
 ```
 
 How has financial product usage changed over time? Both savings and bank usage have increased significantly, whereas microfinance has seen little growth.
@@ -392,7 +407,9 @@ combine <- combine %>%
     theme(
         axis.title.y = element_blank(),
         axis.text.y = element_blank(),
-        axis.ticks = element_blank())
+        axis.ticks = element_blank(),
+        panel.background = element_blank(),
+        panel.border = element_blank())
 ```
 
 
@@ -410,7 +427,9 @@ waffle <- finac.k.15 %>%
 
   waffle(waffle/10, rows = 10, size = 0.5, colors = c("#1b9e77", "#d95f02", "#7570b3"), legend_pos = "bottom") +
     my.theme +
-    theme(panel.grid = element_blank()) +
+    theme(panel.grid = element_blank(), 
+          panel.border = element_blank(),
+          panel.background = element_blank()) +
     labs(
       title = "An overwhelming majority of Kenyan business-owners \nhave never used a bank account",
       subtitle = "At least for business purposes\n\nEach square represents 10 individuals",
@@ -473,3 +492,4 @@ finac.k.15 %>%
   my.theme 
 # Attempted to add annotations for un-readable values, but unable to do so. No x, y coordinates on tree map. annotate("text", x = 1, y = 1, label = "Test") just puts labels at center of tree map. Adjusting x and y values does not matter.
 ```
+## Data Sources
