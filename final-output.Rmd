@@ -9,7 +9,8 @@ output:
     toc_depth: 2
     toc_float: true
 bibliography: bib.bib
-nocite: "@DVN/QUTLO2_2016"
+nocite: "@*"
+
 ---
 ```{r global_options, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
@@ -112,7 +113,7 @@ Below, we first observe that there is no clear relationship between GDP and inte
           legend.box.just = "left",
           legend.margin = margin(6, 6, 6, 6),
           legend.box.background = element_rect(),
-          panel.grid = element_line(linetype = "solid", size = 0.2)) +
+          ) +
     annotate("rect", xmin = 0, xmax = 20000, ymin = 38, ymax = 55, alpha = 0.15) +
     annotate("text", x = 17000, y = 50, label = "High cost of finance", family = "Avenir Next") +
     annotate("rect", xmin = 1000, xmax = 16000, ymin = -18, ymax = -2, alpha = 0.15) +
@@ -307,7 +308,7 @@ finac.k.15 %>%
   cbind(st_coordinates(st_centroid(kenya))) %>%
   ggplot() +
   geom_sf(aes(fill = cut_number(usepcap, 5)), size = 0.2, color = "white") +
-  geom_label_repel(data = labels.county, aes(X, Y, label = county), size = 3, family = "Avenir Next") +
+  geom_label_repel(data = labels.county, aes(X, Y, label = county), size = 3, family = "Avenir Next", min.segment.length = 0) +
   coord_sf(datum=NA) +
   scale_fill_manual(name = NULL, values = c("#f7dfcc", "#efbf99", "#e89f67", "#e07e34", "#d95f02"),
                     labels = c("Less than 7.72", "7.72-9.74", "9.75-11.4", "11.5-16.9", "17-83.7")) +
@@ -321,7 +322,7 @@ finac.k.15 %>%
   annotate("text", x = 35, y = -3, label = "Tanzania", family = "Avenir Next", size = 3, hjust = 0) +
   annotate("text", x = 32, y = 0.7, label = "Uganda", family = "Avenir Next", size = 3, hjust = 0) +
   annotate("text", x = 37.5, y = 5.4, label = "Ethiopia", family = "Avenir Next", size = 3, hjust = 0) +
-  annotate("text", x = 41.05, y = 1.8, label = "Somalia", family = "Avenir Next", size = 3, hjust = 0)
+  annotate("text", x = 41.06, y = 1.5, label = "Somalia", family = "Avenir Next", size = 3, hjust = 0)
 
 ```
 
@@ -411,7 +412,6 @@ combine <- combine %>%
         panel.background = element_blank(),
         panel.border = element_blank())
 ```
-
 
 
 Access to finance for entrepreneurs is a key ingredient to economic growth. When small-to-medium enterprises, which are characteristic of Kenya, can access financial services, these business can save, invest, and ultimately grow. Yet, surprisingly, few business owners use these services.
