@@ -27,8 +27,8 @@ library(readxl)
 library(sf)
 library(extrafont)
 library(ggrepel)
-library(ggridges)
 library(waffle)
+
 
 # Load data
 findex <- read_csv("../fininc-data/clean/clean.findex.csv")
@@ -59,9 +59,6 @@ kenya <- read_sf(dsn="../fininc-data/ken_admbnda_adm1_iebc_20180607", layer = "k
           panel.border = element_rect(color = "gray", fill = NA, size = 0.1),
           panel.background = element_rect(color = "black", fill = "#f2f2f2")
           )
-  
-# Define colors - 6-class Dark2 theme from ColorBrewer2.0
-  cols <- c("#1b9e77", "#d95f02", "#7570b3", "#e7298a", "#66a61e", "#e6ab02")
 
 ```
 
@@ -87,15 +84,15 @@ Below, we first observe that there is no clear relationship between GDP and inte
     filter(cntry.code %in% c("MDG", "TLS", "BRA", "QAT", "SGP", "KWT", "BRN", "ARG", "SUR", "BWA")) %>%
     mutate(label = paste0(economy, ": ", round(i_depositors_A1_pop, 0)))
 
-  
-  wdi %>%
+
+wdi %>%
     filter(year==2016) %>%
     select(cntry.code, year, ny.gdp.pcap.kd, fr.inr.rinr) %>%
     left_join(imf) %>%
     select(cntry.code, year, ny.gdp.pcap.kd, fr.inr.rinr, i_depositors_A1_pop, i_deposit_acc_A1_pop, Region) %>%
     filter(!is.na(fr.inr.rinr) & !is.na(ny.gdp.pcap.kd) & !is.na(i_depositors_A1_pop)) %>%
   ggplot(aes(x = ny.gdp.pcap.kd, y = fr.inr.rinr, size = i_depositors_A1_pop)) +
-    geom_point(alpha = 0.5, color = "#1b9e77") +
+    geom_point(color = "#266197") +
     scale_size_continuous(name = "# of Depositors per\n1,000 adults", range = c(0, 8)) +
     scale_x_continuous(labels = scales::comma) +
     geom_label_repel(data = labels.bubble, aes(label = label), family = "Avenir Next", size = 3,
@@ -120,9 +117,6 @@ Below, we first observe that there is no clear relationship between GDP and inte
     annotate("text", x = 18000, y = -15, label = "Low cost of finance", family = "Avenir Next")
   
   
-
-  
-  
 ```
 In the chart below, we can take a closer look at the variation in economies with GDP per capita less than $20,000. As above, there is no clear relationship between income levels and the interest rate. In countries such as Uganda and the Kyrgyz Republic, the interest rate is high, and the number of depositors is small, indicating that finance is potentially a constraint. In contrast, China has a relatively low interest rate, and an extremely small number of depositors. 
 
@@ -138,7 +132,7 @@ In the chart below, we can take a closer look at the variation in economies with
     filter(cntry.code %in% c("MDG", "TLS", "BRA", "ARG", "SUR", "BWA", "CHN", "UGA", "KGZ")) %>%
     mutate(label = paste0(economy, ": ", round(i_depositors_A1_pop, 0)))
 
-  
+ 
   
   wdi %>%
     filter(year==2016, ny.gdp.pcap.kd<20000) %>%
@@ -147,7 +141,7 @@ In the chart below, we can take a closer look at the variation in economies with
     select(cntry.code, year, ny.gdp.pcap.kd, fr.inr.rinr, i_depositors_A1_pop, i_deposit_acc_A1_pop, Region) %>%
     filter(!is.na(fr.inr.rinr) & !is.na(ny.gdp.pcap.kd) & !is.na(i_depositors_A1_pop)) %>%
   ggplot(aes(x = ny.gdp.pcap.kd, y = fr.inr.rinr, size = i_depositors_A1_pop)) +
-    geom_point(alpha = 0.5, color = "#1b9e77") +
+    geom_point(color = "#266197") +
     scale_size_continuous(name = "# of Depositors per \n1,000 adults", range = c(0, 8)) +
     scale_x_continuous(labels = scales::comma) +
     geom_label_repel(data = labels.bubble2, aes(label = label), family = "Avenir Next", size = 3,
@@ -181,16 +175,16 @@ imf %>%
   mutate(size = ifelse(Region2=="Sub-Saharan Africa", 1, 0)) %>%
   ggplot(aes(x = year, y = mean, color = Region2, size = size)) +
   geom_line() +
-  scale_size(range = c(0.2, 0.8), guide="none") +
+  scale_size(range = c(0.6, 1.6), guide="none") +
   labs(
     title = "Mobile money useage has grown significantly in Sub-Saharan Africa",
     subtitle = "Wheras in Latin America and the Middle East, there has been little growth",
     caption = "Source: IMF Financial Access Survey",
     x = "Year",
     y = "Average value of mobile money transactions (% of GDP)"
-  ) +
+  ) + 
   scale_x_continuous(breaks = c(2012, 2013, 2014, 2015, 2016, 2017)) +
-  scale_color_brewer(name = NULL, palette = "Dark2") +
+  scale_color_manual(values = c("#6cbe55", "#800f76", "#51b7d8", "#0b522e", "#fe74fe", "#266197")) +
   geom_point(size = 0.8) +
   my.theme +
   theme(legend.position = c(0.05, 0.97),
@@ -218,8 +212,8 @@ findex %>%
   ggplot() +
   geom_segment(aes(x=country, xend = country, y = mobileaccount.t.d.2,
                    yend = mobileaccount.t.d.1), color = "black") +
-  geom_point(aes(x = country, y = mobileaccount.t.d.2), color = "#7570b3", size = 2) +
-  geom_point(aes(x = country, y = mobileaccount.t.d.1), color = "#1b9e77", size = 2) +
+  geom_point(aes(x = country, y = mobileaccount.t.d.2), color = "#800f76", size = 2) +
+  geom_point(aes(x = country, y = mobileaccount.t.d.1), color = "#6cbe55", size = 2) +
   geom_text(aes(x = "Kenya", y = 65, label = "Female"), nudge_x = -0.7, nudge_y = 0.9,
             color = "black", size = 3, family = "Avenir Next", angle = 20) +
   geom_text(aes(x = "Kenya", y = 78, label = "Male"), nudge_x = -0.7,
@@ -262,7 +256,7 @@ finac.k.15 %>%
   mutate(usepcap = (n/pop_2015)*100000) %>%
   ggplot(aes(x = reorder(county, usepcap), y = (usepcap), fill = cut_number(usepcap, 5))) +
   geom_bar(stat = "identity") +
-  scale_fill_manual(name = NULL, values = c("#f7dfcc", "#efbf99", "#e89f67", "#e07e34", "#d95f02"),
+  scale_fill_manual(name = NULL, values = c("#caf7ff", "#91bffc", "#5e8fc9", "#276298", "#003667"),
                     labels = c("Less than 7.72", "7.72-9.74", "9.75-11.4", "11.5-16.9", "17-83.7")) +
   scale_x_discrete(expand = c(0,0)) +
   scale_y_continuous(expand = c(0,0)) +
@@ -306,11 +300,12 @@ finac.k.15 %>%
   mutate(usepcap = (n/pop_2015)*100000) %>%
   left_join(kenya, by = "county") %>%
   cbind(st_coordinates(st_centroid(kenya))) %>%
+  st_as_sf() %>%
   ggplot() +
   geom_sf(aes(fill = cut_number(usepcap, 5)), size = 0.2, color = "white") +
   geom_label_repel(data = labels.county, aes(X, Y, label = county), size = 3, family = "Avenir Next", min.segment.length = 0) +
   coord_sf(datum=NA) +
-  scale_fill_manual(name = NULL, values = c("#f7dfcc", "#efbf99", "#e89f67", "#e07e34", "#d95f02"),
+  scale_fill_manual(name = NULL, values = c("#caf7ff", "#91bffc", "#5e8fc9", "#276298", "#003667"),
                     labels = c("Less than 7.72", "7.72-9.74", "9.75-11.4", "11.5-16.9", "17-83.7")) +
   my.theme +
   theme(panel.background = element_blank(),
@@ -348,9 +343,9 @@ finac.k.15 %>%
   ggplot(aes(x = product, y = area_sex, fill = proportion)) +
   geom_tile(color = "black", size = 0.25) +
   geom_text(aes(label = paste0(round(proportion,1), "%"), family = "Avenir Next", fontface = "bold")) +
-  scale_fill_gradient2(name = "Proportion", low = "#e8f5f1", mid = "#76c4ad", high = "#1b9e77", guide = "colorbar", midpoint = 40) +
+  scale_fill_gradient(name = "Proportion", low = "#bdcfdf", high = "#266197", guide = "colorbar") +
   labs(
-    title = "Most Kenyans utilize savings accounts, \n regardless of sex or location",
+    title = "Most Kenyans utilize savings accounts, \nregardless of sex or location",
     subtitle = "The proportion of individuals with particular financial products by sex and area",
     caption = "Note: Individuals can have more than one product, so the rows do not add up to 100.\n\nSACCO: Savings and Credit Cooperatives Societies\nSource: Financial Access Survey 2015-16, Kenya",
     y = NULL,
@@ -388,7 +383,7 @@ combine <- combine %>%
     geom_line(aes(color = type2), size = 2) +
     geom_point(aes(color = type2), size = 4) +
     scale_x_continuous(name = "Year", position = "top", breaks = c(2006, 2015)) +
-    scale_color_brewer(name = NULL, palette = "Dark2") +
+    scale_color_manual(values = c("#6cbe55", "#800f76", "#51b7d8", "#0b522e", "#fe74fe", "#266197"), name = "none") +
     geom_label_repel(data = combine %>% filter(year==2006), aes(label = paste0(round(pct, 2), "%")),
               hjust = -0.1,
               vjust = -1,
@@ -425,7 +420,7 @@ waffle <- finac.k.15 %>%
   spread(key = l11_1, value = n) %>%
   rename(`Currently banked` = `1`, `Used to bank` = `2`, `Never banked` = `3`)
 
-  waffle(waffle/10, rows = 10, size = 0.5, colors = c("#1b9e77", "#d95f02", "#7570b3"), legend_pos = "bottom") +
+  waffle(waffle/10, rows = 10, size = 0.5, colors = c("#6cbe55","#51b7d8", "#fe74fe"), legend_pos = "bottom") +
     my.theme +
     theme(panel.grid = element_blank(), 
           panel.border = element_blank(),
@@ -483,13 +478,12 @@ finac.k.15 %>%
                     reflow = TRUE,
                     family = "Avenir Next"
   ) +
-  scale_fill_manual(values = c("#1b9e77", "#7570b3")) +
+  scale_fill_manual(values = c("#0b522e", "#800f76")) +
   theme(legend.position = "none") +
   labs(title = "Many business owners user their own savings as start-up capital\nrather than loans",
        subtitle = "Females also receive more gifts from family or friends.\n\nIn this survey, females represent about 65% of business owners.",
        caption = "Source: Financial Access Survey, 2015-2016, Kenya"
   ) +
-  my.theme 
-# Attempted to add annotations for un-readable values, but unable to do so. No x, y coordinates on tree map. annotate("text", x = 1, y = 1, label = "Test") just puts labels at center of tree map. Adjusting x and y values does not matter.
+  my.theme
 ```
 ## Data Sources
