@@ -279,7 +279,7 @@ finac.k.15 %>%
 ```
 
 For context, Isiolo, Marsabit, and Lamu are some of the least populated counties, whereas Nairobi and Nakuru are the most populated.
-```{r, fig.width = 6, fig.height = 5, fig.align = 'center'}
+```{r, fig.width = 9, fig.height = 7, fig.align = 'center'}
 # Create county labels
 labels.county <- kenya %>%
   cbind(st_coordinates(st_centroid(kenya))) %>%
