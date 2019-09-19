@@ -28,6 +28,8 @@ library(sf)
 library(extrafont)
 library(ggrepel)
 library(waffle)
+library(leaflet)
+library(htmltools)
 
 
 # Load data
@@ -279,19 +281,13 @@ finac.k.15 %>%
 ```
 
 For context, Isiolo, Marsabit, and Lamu are some of the least populated counties, whereas Nairobi and Nakuru are the most populated.
-```{r, fig.width = 9, fig.height = 7, fig.align = 'center'}
-# Create county labels
-labels.county <- kenya %>%
-  cbind(st_coordinates(st_centroid(kenya))) %>%
-  filter(county=="Isiolo" | county=="Lamu" | county=="Marsabit" | county=="Nairobi" | county=="Nakuru")
-  labels.county$county[labels.county$county=="Isiolo"] <- "Isiolo, 83.7"
-  labels.county$county[labels.county$county=="Lamu"] <- "Lamu, 41.5"
-  labels.county$county[labels.county$county=="Marsabit"] <- "Marsabit, 43.9"
-  labels.county$county[labels.county$county=="Nairobi"] <- "Nairobi, 3.6"
-  labels.county$county[labels.county$county=="Nakuru"] <- "Nakuru, 4.7"
 
-# Map
-finac.k.15 %>%
+#### **Individuals who nevered banked are concentrated in three counties: Isiolo, Marsabit, and Lamu**
+*Individuals who never banked per 100,000 in 2015*
+```{r, fig.width = 9, fig.height = 7, fig.align = 'center'}
+
+
+kenya_map <- finac.k.15 %>%
   mutate(nobank = bank_usage - 2) %>%
   group_by(county) %>%
   filter(nobank==1) %>%
@@ -300,26 +296,39 @@ finac.k.15 %>%
   mutate(usepcap = (n/pop_2015)*100000) %>%
   left_join(kenya, by = "county") %>%
   cbind(st_coordinates(st_centroid(kenya))) %>%
-  st_as_sf() %>%
-  ggplot() +
-  geom_sf(aes(fill = cut_number(usepcap, 5)), size = 0.2, color = "white") +
-  geom_label_repel(data = labels.county, aes(X, Y, label = county), size = 3, family = "Avenir Next", min.segment.length = 0) +
-  coord_sf(datum=NA) +
-  scale_fill_manual(name = NULL, values = c("#caf7ff", "#91bffc", "#5e8fc9", "#276298", "#003667"),
-                    labels = c("Less than 7.72", "7.72-9.74", "9.75-11.4", "11.5-16.9", "17-83.7")) +
-  my.theme +
-  theme(panel.background = element_blank(),
-        axis.title = element_blank(),
-        panel.border = element_blank()) +
-  labs(title = "Individuals who have never banked are \nconcentrated in three counties",
-       subtitle = "Individuals who never banked per 100,000 in 2015",
-       caption = "Source: 2015-16 Financial Access Survey \n Population data is a projection from UNICEF") +
-  annotate("text", x = 35, y = -3, label = "Tanzania", family = "Avenir Next", size = 3, hjust = 0) +
-  annotate("text", x = 32, y = 0.7, label = "Uganda", family = "Avenir Next", size = 3, hjust = 0) +
-  annotate("text", x = 37.5, y = 5.4, label = "Ethiopia", family = "Avenir Next", size = 3, hjust = 0) +
-  annotate("text", x = 41.06, y = 1.5, label = "Somalia", family = "Avenir Next", size = 3, hjust = 0)
+  st_as_sf()
+
+
+
+pal <- colorQuantile(c("#caf7ff", "#91bffc", "#5e8fc9", "#276298", "#003667"),
+                     kenya_map$usepcap,
+                     n = 5)
+
+labels.county <- sprintf("<strong>%s</strong><br/>%g people per 100,000",
+                         kenya_map$county,
+                         round(kenya_map$usepcap, digits = 2)) %>% 
+  lapply(htmltools::HTML)
+
+  leaflet(kenya_map) %>%
+  addPolygons(fillOpacity = 0.7,
+              fillColor = ~pal(usepcap),
+              weight = 1,
+              color = "black",
+              highlight = highlightOptions(
+                weight = 4,
+                color = "white",
+                bringToFront = TRUE),
+              label = labels.county,
+              labelOptions = labelOptions(
+                style = list("font-weight" = "normal", padding = "3px 8px"),
+                textsize = "15px",
+                direction = "auto")
+              ) %>%
+  addProviderTiles(providers$Esri.WorldGrayCanvas)
 
 ```
+Source: 2015-16 Financial Access Survey
+Population data is a projection from UNICEF
 
 
 Kenyans utilize all sorts of financial services. A majority of individuals have a savings account, regardless of sex or location. Most individuals living in urban areas use bank accounts, whereas in rural areas, this is less prominent. Instead, individuals in rural areas tend to use more loans. For bank users, the difference in access between urban males and females is significantly different, as is the difference between rural males and females. Finally, few individuals utilize microfinance, which was once touted as a promising international development intervention [^2].
